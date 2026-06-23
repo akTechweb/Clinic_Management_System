@@ -252,7 +252,7 @@ Add screenshots of:
 -Pharmacy Module
 
 - Pharmacy Dashboard
-- <img width="1920" height="913" alt="image" src="https://github.com/user-attachments/assets/5bf51fd9-9f5e-4445-8f87-1abc135f3887" />
+- <img width="1920" height="1365" alt="image" src="https://github.com/user-attachments/assets/1a3348e5-4b6b-4483-b738-f326ed68a8f6" />
 
 - Medicine Inventory
 - <img width="1920" height="841" alt="image" src="https://github.com/user-attachments/assets/ad0766d9-f347-48eb-9327-8142d59c9ac0" />
