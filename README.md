@@ -263,14 +263,16 @@ Add screenshots of:
 - <img width="1920" height="842" alt="image" src="https://github.com/user-attachments/assets/53bcba55-aae6-4061-ba03-818cca91007a" />
 - <img width="1920" height="842" alt="image" src="https://github.com/user-attachments/assets/8be7889b-45ae-4325-af03-d5a15cd7e26b" />
 - <img width="1920" height="842" alt="image" src="https://github.com/user-attachments/assets/1f235d4d-9066-482a-9f13-47daf4db42b7" />
-- <img width="1920" height="897" alt="image" src="https://github.com/user-attachments/assets/382b267e-8819-4bdb-86fa-65d785bf85b9" />
+
 - <img width="1287" height="853" alt="image" src="https://github.com/user-attachments/assets/0caca9e1-e787-4926-8655-a02f1441ae2d" />
 
 -Pharmacy Reports
 <img width="1920" height="842" alt="image" src="https://github.com/user-attachments/assets/f8d1cc08-7e95-4253-ba54-8a074d1d0f7a" />
 
 -Pharmacy Audit Log
-<img width="1920" height="842" alt="image" src="https://github.com/user-attachments/assets/cdec96ba-da27-49db-829d-cb7b2ac7a1b3" />
+<img width="1920" height="1096" alt="image" src="https://github.com/user-attachments/assets/19ae91ad-b7a5-4b4d-929e-b0a619cad8de" />
+
+
 
 -Lab Module
 
