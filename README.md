@@ -262,7 +262,7 @@ Add screenshots of:
 - Billing Screen
 - <img width="1920" height="842" alt="image" src="https://github.com/user-attachments/assets/53bcba55-aae6-4061-ba03-818cca91007a" />
 - <img width="1920" height="842" alt="image" src="https://github.com/user-attachments/assets/8be7889b-45ae-4325-af03-d5a15cd7e26b" />
-- <img width="1920" height="842" alt="image" src="https://github.com/user-attachments/assets/1f235d4d-9066-482a-9f13-47daf4db42b7" />
+
 
 - <img width="1287" height="853" alt="image" src="https://github.com/user-attachments/assets/0caca9e1-e787-4926-8655-a02f1441ae2d" />
 
