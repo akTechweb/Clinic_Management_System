@@ -306,11 +306,4 @@ git clone <repository-url>
 6. Run the application
 
 ---
-
-📄 License
-
-This project is intended for educational and learning purposes.
-
----
-
-⭐ If you found this project useful, consider giving it a star.
+Thank you..
