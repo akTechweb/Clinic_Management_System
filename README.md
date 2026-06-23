@@ -239,7 +239,8 @@ Add screenshots of:
 - <img width="1920" height="1218" alt="image" src="https://github.com/user-attachments/assets/9a238296-4feb-41ab-8e49-ebab260a480c" />
 
 -Appointment Booking
--<img width="1918" height="577" alt="image" src="https://github.com/user-attachments/assets/9fedca46-dff7-4025-8804-e7644440114c" />
+-<img width="951" height="254" alt="receptionistupdated741" src="https://github.com/user-attachments/assets/a4d03add-feee-4f76-8e50-673349f2d440" />
+
 
 -Doctor Module
 
