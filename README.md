@@ -257,7 +257,7 @@ Add screenshots of:
 - Medicine Inventory
 - <img width="1920" height="841" alt="image" src="https://github.com/user-attachments/assets/ad0766d9-f347-48eb-9327-8142d59c9ac0" />
 - <img width="1920" height="841" alt="image" src="https://github.com/user-attachments/assets/36404087-890d-421a-8c40-3a65d981d1a7" />
-- <img width="1920" height="1518" alt="image" src="https://github.com/user-attachments/assets/91032554-0d36-415d-90bf-5797bd0aa6e4" />
+
 
 - Billing Screen
 - <img width="1920" height="842" alt="image" src="https://github.com/user-attachments/assets/53bcba55-aae6-4061-ba03-818cca91007a" />
