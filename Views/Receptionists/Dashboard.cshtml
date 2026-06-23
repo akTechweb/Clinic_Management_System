@@ -1,0 +1,320 @@
+﻿@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Receptionist Dashboard";
+    ViewData["ActiveNav"] = "Dashboard";
+
+    var recentPats = ViewBag.RecentPatients as List<InfinityCoderzz_CMSV2026.Models.Patient>
+                     ?? new List<InfinityCoderzz_CMSV2026.Models.Patient>();
+
+    decimal collection = ViewBag.TodayCollection ?? 0m;
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="page-title">Welcome, @ViewBag.UserName 👩‍💼</h4>
+        <p class="page-sub">Manage patient registration, appointment booking, billing and reports.</p>
+    </div>
+
+    <span class="badge-cms badge-blue" style="padding:8px 16px;font-size:13px">
+        Receptionist Dashboard
+    </span>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-blue">
+            <div class="stat-icon">👥</div>
+            <div>
+                <div class="stat-val">@ViewBag.TotalPatients</div>
+                <div class="stat-lbl">Total Patients</div>
+                <div class="stat-sub">All Registered Patients</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card stat-green">
+            <div class="stat-icon">📅</div>
+            <div>
+                <div class="stat-val">@ViewBag.TodayAppointments</div>
+                <div class="stat-lbl">Today's Appointment</div>
+                <div class="stat-sub">Appointments for Today</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card stat-orange">
+            <div class="stat-icon">📆</div>
+            <div>
+                <div class="stat-val">@ViewBag.TomorrowAppointments</div>
+                <div class="stat-lbl">Tomorrow's Appointment</div>
+                <div class="stat-sub">Appointments for Tomorrow</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card stat-purple">
+            <div class="stat-icon">₹</div>
+            <div>
+                <div class="stat-val">@collection.ToString("N0")</div>
+                <div class="stat-lbl">Today's Collection</div>
+                <div class="stat-sub">Total Collection for Today</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+
+        <div class="cms-card mb-3">
+            <div class="cms-card-body">
+                <h6 style="font-weight:700;margin-bottom:14px">
+                    Search Registered Patient
+                </h6>
+
+                <form asp-controller="Patients"
+                      asp-action="Search"
+                      method="get"
+                      id="dashboardSearchForm">
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span style="font-size:13px;font-weight:500;color:var(--muted)">
+                            Search By
+                        </span>
+
+                        <label class="gender-radio">
+                            <input type="radio"
+                                   name="searchBy"
+                                   value="MMR"
+                                   checked />
+                            <span>MMR No</span>
+                        </label>
+
+                        <label class="gender-radio">
+                            <input type="radio"
+                                   name="searchBy"
+                                   value="Mobile" />
+                            <span>Mobile Number</span>
+                        </label>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <input type="text"
+                               name="searchText"
+                               id="dashboardSearchText"
+                               class="form-control-cms"
+                               placeholder="Enter MMR No"
+                               style="max-width:400px"
+                               required />
+
+                        <button type="submit" class="btn-primary-cms">
+                            🔍 Search
+                        </button>
+                    </div>
+                </form>
+
+                <div class="tip-bar">
+                    ℹ Search by MMR No for exact patient or by Mobile Number to view all related patients.
+                </div>
+            </div>
+        </div>
+
+        <div class="cms-card">
+            <div class="cms-card-header">
+                <span class="cms-card-title">📋 Today's Summary Overview</span>
+            </div>
+
+            <div class="cms-card-body">
+                <div class="d-flex justify-content-around">
+                    <div class="summary-item">
+                        <div class="summary-icon" style="background:#dbeafe">👥</div>
+                        <div class="summary-val" style="color:var(--blue)">
+                            @ViewBag.TotalPatients
+                        </div>
+                        <div class="summary-lbl">
+                            Total Patients<br />All Registered Patients
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-icon" style="background:#dcfce7">📅</div>
+                        <div class="summary-val" style="color:var(--green)">
+                            @ViewBag.TodayAppointments
+                        </div>
+                        <div class="summary-lbl">
+                            Today's Appointment<br />Appointments for Today
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-icon" style="background:#ffedd5">📆</div>
+                        <div class="summary-val" style="color:var(--orange)">
+                            @ViewBag.TomorrowAppointments
+                        </div>
+                        <div class="summary-lbl">
+                            Tomorrow's Appointment<br />Appointments for Tomorrow
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-icon" style="background:#f3e8ff">₹</div>
+                        <div class="summary-val" style="color:var(--purple)">
+                            ₹@collection.ToString("N0")
+                        </div>
+                        <div class="summary-lbl">
+                            Today's Collection<br />Total Collection for Today
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="cms-card mb-3">
+            <div class="cms-card-header">
+                <span class="cms-card-title">⚡ Quick Actions</span>
+            </div>
+
+            <div class="cms-card-body">
+
+                <a asp-controller="Patients"
+                   asp-action="Create"
+                   class="quick-action"
+                   style="background:#eff6ff;color:var(--blue)">
+                    <div class="qa-icon" style="background:var(--blue);color:#fff">👤</div>
+                    <span>+ Register New Patient</span>
+                </a>
+
+                <a asp-controller="Patients"
+                   asp-action="Search"
+                   class="quick-action"
+                   style="background:#f0fdf4;color:var(--green)">
+                    <div class="qa-icon" style="background:var(--green);color:#fff">🔍</div>
+                    <span>+ Search Patient</span>
+                </a>
+
+                <a asp-controller="Appointments"
+                   asp-action="Index"
+                   class="quick-action"
+                   style="background:#fff7ed;color:var(--orange)">
+                    <div class="qa-icon" style="background:var(--orange);color:#fff">📅</div>
+                    <span>+ Appointments</span>
+                </a>
+
+                <a asp-controller="ReceptionistReports"
+                   asp-action="Index"
+                   class="quick-action"
+                   style="background:#f5f3ff;color:var(--purple)">
+                    <div class="qa-icon" style="background:var(--purple);color:#fff">📊</div>
+                    <span>+ Reports</span>
+                </a>
+
+            </div>
+        </div>
+
+        @* <div class="cms-card">
+            <div class="cms-card-header">
+                <span class="cms-card-title">👤 Recently Registered Patients</span>
+            </div>
+
+            <div class="cms-card-body p-0">
+                <table class="cms-table">
+                    <thead>
+                        <tr>
+                            <th>MMR No</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Mobile</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (recentPats.Any())
+                        {
+                            foreach (var p in recentPats)
+                            {
+                                <tr>
+                                    <td>
+                                        <a class="mmr-link"
+                                           asp-controller="Patients"
+                                           asp-action="Details"
+                                           asp-route-id="@p.PatientId">
+                                            @p.PatientCode
+                                        </a>
+                                    </td>
+
+                                    <td>@p.FullName</td>
+                                    <td>@(p.Age?.ToString() ?? "—")</td>
+                                    <td>@(p.MobileNumber ?? "—")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state" style="padding:20px">
+                                        <p>No recent patients.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div style="padding:12px 16px;border-top:1px solid var(--border)">
+                    <a asp-controller="Patients"
+                       asp-action="Index"
+                       style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:500">
+                        View All Patients ›
+                    </a>
+                </div>
+            </div>
+        </div> *@
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const searchText = document.getElementById('dashboardSearchText');
+        const searchRadios = document.querySelectorAll('input[name="searchBy"]');
+
+        function updateDashboardSearchPlaceholder() {
+            const selected = document.querySelector('input[name="searchBy"]:checked').value;
+
+            if (selected === 'Mobile') {
+                searchText.placeholder = 'Enter Mobile Number';
+                searchText.maxLength = 10;
+                searchText.value = searchText.value.replace(/\D/g, '');
+            } else {
+                searchText.placeholder = 'Enter MMR No';
+                searchText.removeAttribute('maxlength');
+            }
+        }
+
+        searchRadios.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                searchText.value = '';
+                updateDashboardSearchPlaceholder();
+            });
+        });
+
+        searchText.addEventListener('input', function () {
+            const selected = document.querySelector('input[name="searchBy"]:checked').value;
+
+            if (selected === 'Mobile') {
+                this.value = this.value.replace(/\D/g, '');
+            }
+        });
+
+        updateDashboardSearchPlaceholder();
+    </script>
+}

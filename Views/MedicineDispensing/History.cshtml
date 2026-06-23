@@ -1,0 +1,162 @@
+@model IEnumerable<InfinityCoderzz_CMSV2026.Models.pharmacist.DispensingHistoryViewModel>
+
+@{
+    Layout = "_PharmacyLayout";
+    ViewData["Title"] = "Dispensing History";
+    ViewData["ActiveMenu"] = "MedicineDispensing";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <div class="page-title">Dispensing History</div>
+        <div class="page-sub">Complete record of all medicine dispensing transactions</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn-cms">
+            <i class="fa-solid fa-hand-holding-medical me-1"></i> Dispense Medicine
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fa-solid fa-circle-check me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Search & Filter -->
+<div class="cms-card mb-3">
+    <div class="p-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label text-muted small">Search Patient</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Type patient name...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Date Filter</label>
+                <input type="date" id="dateFilter" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <button onclick="clearFilters()" class="btn btn-outline-secondary w-100">
+                    <i class="fa-solid fa-xmark me-1"></i> Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cms-card">
+    <div class="cms-card-header">
+        <span class="cms-card-title"><i class="fa-solid fa-clock-rotate-left"></i> Dispensing Records</span>
+        <span class="badge bg-secondary">@Model.Count() record(s)</span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="cms-table" id="historyTable">
+            <thead>
+                <tr>
+                    <th>Dispense No.</th>
+                    <th>Prescription No.</th>
+                    <th>Patient</th>
+                    <th>Dispensed By</th>
+                    <th>Date & Time</th>
+                    <th class="text-center">Items</th>
+                    <th class="text-end">Total</th>
+                    <th class="text-center">Remarks</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody">
+                @if (Model.Any())
+                {
+                    @foreach (var record in Model)
+                    {
+                        <tr class="history-row"
+                            data-patient="@record.PatientName?.ToLower()"
+                            data-date="@record.DispenseDate.ToString("yyyy-MM-dd")">
+                            <td><strong>@RefNo.Dispense(record.DispenseId)</strong></td>
+                            <td>
+                                @if (record.PrescriptionId > 0)
+                                {
+                                    <a asp-controller="Prescription" asp-action="Details"
+                                       asp-route-id="@record.PrescriptionId" class="text-decoration-none">
+                                        @RefNo.Rx(record.PrescriptionId)
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td>@(record.PatientName ?? "—")</td>
+                            <td>@(record.PharmacistName ?? "—")</td>
+                            <td>@record.DispenseDate.ToString("dd MMM yyyy hh:mm tt")</td>
+                            <td class="text-center">
+                                <span class="badge bg-secondary">@record.TotalItems</span>
+                            </td>
+                            <td class="text-end">
+                                @if (record.TotalAmount > 0)
+                                {
+                                    <strong class="text-success">₹@record.TotalAmount.ToString("N2")</strong>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (!string.IsNullOrEmpty(record.Remarks))
+                                {
+                                    <span title="@record.Remarks" style="cursor:help;">
+                                        <i class="fa-solid fa-comment-dots text-muted"></i>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-inbox fa-2x mb-2 d-block"></i>
+                            No dispensing records found.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function filterTable() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const date   = document.getElementById('dateFilter').value;
+        document.querySelectorAll('.history-row').forEach(row => {
+            const patient = row.dataset.patient ?? '';
+            const rowDate = row.dataset.date ?? '';
+            const matchSearch = !search || patient.includes(search);
+            const matchDate   = !date   || rowDate === date;
+            row.style.display = matchSearch && matchDate ? '' : 'none';
+        });
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('dateFilter').value  = '';
+        filterTable();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', filterTable);
+    document.getElementById('dateFilter').addEventListener('change', filterTable);
+</script>
+}

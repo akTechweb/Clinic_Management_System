@@ -1,0 +1,70 @@
+@model InfinityCoderzz_CMSV2026.Models.pharmacist.MedicineStock
+
+@{
+    Layout = "_PharmacyLayout";
+    ViewData["Title"] = "Edit Stock";
+    ViewData["ActiveMenu"] = "MedicineStock";
+}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a asp-action="List" class="btn-outline-cms btn-sm-cms">
+        <i class="fa-solid fa-arrow-left"></i> Back
+    </a>
+    <div>
+        <div class="page-title">Edit Stock Batch</div>
+        <div class="page-sub">@Model.MedicineName — Batch @Model.BatchNumber</div>
+    </div>
+</div>
+
+<div class="cms-card" style="max-width:520px;">
+    <div class="cms-card-header">
+        <span class="cms-card-title"><i class="fa-solid fa-pen"></i> Edit Stock</span>
+    </div>
+    <div class="cms-card-body">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="StockId" type="hidden" />
+            <input asp-for="MedicineId" type="hidden" />
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label-cms">Medicine</label>
+                    <input asp-for="MedicineName" class="form-control-cms" readonly
+                           style="background:#f8fafc;color:#64748b;" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-cms">Batch Number</label>
+                    <input asp-for="BatchNumber" class="form-control-cms" readonly
+                           style="background:#f8fafc;color:#64748b;" />
+                    <span asp-validation-for="BatchNumber" class="text-danger" style="font-size:12px;"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-cms">Quantity <span class="req">*</span></label>
+                    <input asp-for="Quantity" class="form-control-cms" type="number" min="1" max="1000000" step="1" />
+                    <span asp-validation-for="Quantity" class="text-danger" style="font-size:12px;"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-cms">Purchase Price (₹) <span class="req">*</span></label>
+                    <input asp-for="PurchasePrice" class="form-control-cms" type="number" step="0.01" min="0.01" max="99999999.99" />
+                    <span asp-validation-for="PurchasePrice" class="text-danger" style="font-size:12px;"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-cms">Expiry Date <span class="req">*</span></label>
+                    <input asp-for="ExpiryDate" type="date" class="form-control-cms" />
+                    <span asp-validation-for="ExpiryDate" class="text-danger" style="font-size:12px;"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn-primary-cms">
+                    <i class="fa-solid fa-floppy-disk"></i> Update Stock
+                </button>
+                <a asp-action="List" class="btn-outline-cms">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

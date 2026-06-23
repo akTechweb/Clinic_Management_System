@@ -1,0 +1,305 @@
+@model InfinityCoderzz_CMSV2026.Models.pharmacist.PharmacyDashboard
+
+@{
+    Layout = "_PharmacyLayout";
+    ViewData["Title"] = "Pharmacy Dashboard";
+    ViewData["ActiveMenu"] = "Dashboard";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <div class="page-title">Pharmacy Dashboard</div>
+        <div class="page-sub">Welcome back, @(Context.Session.GetString("PharmacistName") ?? "Pharmacist")</div>
+    </div>
+    <div class="text-muted small">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-xmark me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stat Cards Row 1 -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card stat-green">
+            <div class="stat-icon"><i class="fa-solid fa-capsules"></i></div>
+            <div>
+                <div class="stat-val">@Model.TotalMedicines</div>
+                <div class="stat-lbl">Total Medicines</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card stat-orange">
+            <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div>
+                <div class="stat-val">@Model.LowStockMedicines</div>
+                <div class="stat-lbl">Low Stock Alerts</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card stat-red">
+            <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+            <div>
+                <div class="stat-val">@Model.ExpiringMedicines</div>
+                <div class="stat-lbl">Expiring Soon (30d)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card stat-blue">
+            <div class="stat-icon"><i class="fa-solid fa-file-prescription"></i></div>
+            <div>
+                <div class="stat-val">@Model.PendingPrescriptions</div>
+                <div class="stat-lbl">Pending Prescriptions</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stat Cards Row 2 -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card stat-red">
+            <div class="stat-icon"><i class="fa-solid fa-skull-crossbones"></i></div>
+            <div>
+                <div class="stat-val">@Model.ExpiredMedicines</div>
+                <div class="stat-lbl">Expired Medicines</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card stat-green">
+            <div class="stat-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <div>
+                <div class="stat-val">@Model.TotalStockBatches</div>
+                <div class="stat-lbl">Stock Batches</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card stat-blue">
+            <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
+            <div>
+                <div class="stat-val">@Model.TodaysBills</div>
+                <div class="stat-lbl">Today's Bills</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card stat-green">
+            <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
+            <div>
+                <div class="stat-val">₹@Model.TodaysRevenue.ToString("N0")</div>
+                <div class="stat-lbl">Today's Revenue</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="cms-card">
+            <div class="cms-card-header">
+                <span class="cms-card-title"><i class="fa-solid fa-bolt"></i> Quick Actions</span>
+            </div>
+            <div class="p-3 d-flex flex-wrap gap-2">
+                <a asp-controller="Bill" asp-action="Create" class="btn-cms">
+                    <i class="fa-solid fa-plus me-1"></i> New Bill
+                </a>
+                <a asp-controller="MedicineDispensing" asp-action="Create" class="btn-cms">
+                    <i class="fa-solid fa-hand-holding-medical me-1"></i> Dispense Medicine
+                </a>
+                <a asp-controller="Prescription" asp-action="List" class="btn-outline-cms">
+                    <i class="fa-solid fa-file-prescription me-1"></i> View Prescriptions
+                </a>
+                <a asp-controller="MedicineStock" asp-action="List" class="btn-outline-cms">
+                    <i class="fa-solid fa-boxes-stacked me-1"></i> Manage Stock
+                </a>
+                <a asp-controller="MedicineDispensing" asp-action="History" class="btn-outline-cms">
+                    <i class="fa-solid fa-clock-rotate-left me-1"></i> Dispensing History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-7">
+        <div class="cms-card h-100">
+            <div class="cms-card-header">
+                <span class="cms-card-title"><i class="fa-solid fa-chart-line"></i> Revenue (Last 6 Months)</span>
+            </div>
+            <div class="cms-card-body">
+                <canvas id="revenueChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="cms-card h-100">
+            <div class="cms-card-header">
+                <span class="cms-card-title"><i class="fa-solid fa-chart-column"></i> Dispensing (Last 6 Months)</span>
+            </div>
+            <div class="cms-card-body">
+                <canvas id="dispensingChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Tables -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="cms-card">
+            <div class="cms-card-header">
+                <span class="cms-card-title"><i class="fa-solid fa-triangle-exclamation text-warning"></i> Low Stock Medicines</span>
+                <a asp-controller="MedicineStock" asp-action="LowStock" class="btn-outline-cms btn-sm-cms">View All</a>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="cms-table">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Batch</th>
+                            <th class="text-center">Qty</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.LowStockList.Any())
+                        {
+                            @foreach (var item in Model.LowStockList.Take(5))
+                            {
+                                <tr class="alert-row">
+                                    <td style="font-weight:600;">@item.MedicineName</td>
+                                    <td>@item.BatchNumber</td>
+                                    <td class="text-center" style="color:#dc3545;font-weight:700;">@item.Quantity</td>
+                                    <td><span class="badge-cms badge-danger">Low Stock</span></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <i class="fa-solid fa-circle-check text-success me-2"></i>All stocks are adequate
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="cms-card">
+            <div class="cms-card-header">
+                <span class="cms-card-title"><i class="fa-solid fa-clock text-danger"></i> Expiring Soon (≤30 days)</span>
+                <a asp-controller="MedicineStock" asp-action="ExpiringMedicines" class="btn-outline-cms btn-sm-cms">View All</a>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="cms-table">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Batch</th>
+                            <th>Expiry Date</th>
+                            <th>Days Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.ExpiringList.Any())
+                        {
+                            @foreach (var item in Model.ExpiringList.Take(5))
+                            {
+                                <tr>
+                                    <td style="font-weight:600;">@item.MedicineName</td>
+                                    <td>@item.BatchNumber</td>
+                                    <td>@item.ExpiryDate.ToString("dd MMM yyyy")</td>
+                                    <td>
+                                        @if (item.DaysRemaining <= 7)
+                                        {
+                                            <span class="badge-cms badge-danger">@item.DaysRemaining d</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-cms badge-warn">@item.DaysRemaining d</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <i class="fa-solid fa-circle-check text-success me-2"></i>No medicines expiring soon
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    (function () {
+        var revLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueChart.Select(p => p.Label)));
+        var revValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueChart.Select(p => p.Value)));
+        var disLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DispensingChart.Select(p => p.Label)));
+        var disValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DispensingChart.Select(p => p.Value)));
+
+        var revEl = document.getElementById('revenueChart');
+        if (revEl && typeof Chart !== 'undefined') {
+            new Chart(revEl, {
+                type: 'line',
+                data: {
+                    labels: revLabels,
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revValues,
+                        borderColor: '#198754',
+                        backgroundColor: 'rgba(25,135,84,.12)',
+                        fill: true, tension: .35, pointRadius: 3
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        var disEl = document.getElementById('dispensingChart');
+        if (disEl && typeof Chart !== 'undefined') {
+            new Chart(disEl, {
+                type: 'bar',
+                data: {
+                    labels: disLabels,
+                    datasets: [{
+                        label: 'Dispensed',
+                        data: disValues,
+                        backgroundColor: '#0d6efd',
+                        borderRadius: 6
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+    })();
+</script>
+}

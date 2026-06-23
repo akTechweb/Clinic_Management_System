@@ -1,0 +1,126 @@
+﻿@model InfinityCoderzz_CMSV2026.Models.LabBillDetailsViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Lab Bill — @Model.Bill.PatientName</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
+            background: white;
+            color: #334155;
+        }
+
+        h1 {
+            font-size: 22px;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 10px 12px;
+            text-align: left;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .total-row td {
+            font-weight: 700;
+            font-size: 14px;
+            background: #f8fafc;
+        }
+
+        .no-print {
+            display: block;
+        }
+
+        @@media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="display:flex; justify-content:space-between; border-bottom:3px solid #3b82f6; padding-bottom:16px; margin-bottom:20px;">
+        <div>
+            <h1>INFINITY CLINIC MANAGEMENT SYSTEM</h1>
+            <p style="color:#64748b; font-size:12px; margin:4px 0 0;">Lab Bill Invoice — Printed @DateTime.Now.ToString("dd-MM-yyyy HH:mm")</p>
+        </div>
+        <button class="no-print" onclick="window.print()" style="background:#3b82f6; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; margin-right:8px;">
+            🖨 Print
+        </button>
+        <a class="no-print" href="/LabTechnician/DownloadBillPdf?billId=@Model.Bill.BillId"
+           style="background:#e11d48; color:white; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; text-decoration:none; display:inline-block;">
+            📄 Download PDF
+        </a>
+    </div>
+
+    <div style="background:#f8fafc; padding:14px 18px; border-radius:8px; display:grid; grid-template-columns:repeat(4,1fr); gap:10px; font-size:13px; border:1px solid #e2e8f0; margin-bottom:20px;">
+        <div><span style="color:#64748b;">Bill ID:</span><br /><strong style="color:#2563eb;">#@Model.Bill.BillId</strong></div>
+        <div><span style="color:#64748b;">MMR Code:</span><br /><strong>@Model.Bill.MMRCode</strong></div>
+        <div><span style="color:#64748b;">Patient Name:</span><br /><strong>@Model.Bill.PatientName</strong></div>
+        <div><span style="color:#64748b;">Age / Gender:</span><br /><strong>@Model.Age yrs / @Model.Gender</strong></div>
+        <div><span style="color:#64748b;">Mobile:</span><br /><strong>@Model.Bill.MobileNumber</strong></div>
+        <div><span style="color:#64748b;">Bill Date:</span><br /><strong>@Model.Bill.BillDate.ToString("dd-MM-yyyy HH:mm")</strong></div>
+        <div><span style="color:#64748b;">Payment Status:</span><br /><strong>@Model.Bill.PaymentStatus</strong></div>
+    </div>
+
+    <h3 style="font-size:14px; font-weight:700; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">Billed Tests</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th style="text-align:right;">Amount (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.TestName</td>
+                    <td style="text-align:right;">@item.Amount.ToString("0.00")</td>
+                </tr>
+            }
+            <tr class="total-row">
+                <td>Total</td>
+                <td style="text-align:right;">₹@Model.Bill.TotalAmount.ToString("0.00")</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top:60px; display:flex; justify-content:flex-end;">
+        <div style="text-align:center; width:200px; border-top:1px solid #475569; padding-top:8px; font-size:12px; font-weight:600; color:#1e293b;">
+            Authorised Signatory
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+@model InfinityCoderzz_CMSV2026.Models.FinalSummaryDocumentViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Consultation Summary";
+    ViewData["ActiveMenu"] = "ViewAppointments";
+}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2 style="font-size:22px; font-weight:700; color:#16a34a;">
+        <i class="fa-solid fa-circle-check"></i> Consultation Completed Successfully!
+    </h2>
+    <button onclick="printReport()" class="btn-custom" style="background:linear-gradient(135deg,#e11d48,#be123c); padding:10px 20px;">
+        <i class="fa-solid fa-file-pdf"></i> Download PDF
+    </button>
+</div>
+
+<div id="printableArea" style="background:white; padding:36px; border-radius:16px; border:1px solid #e2e8f0; max-width:860px; margin:0 auto; box-shadow:0 8px 24px rgba(0,0,0,0.04);">
+
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #3b82f6; padding-bottom:18px; margin-bottom:22px;">
+        <div>
+            <h1 style="color:#0f172a; font-size:22px; font-weight:800; letter-spacing:-0.5px;">INFINITY CLINIC MANAGEMENT SYSTEM</h1>
+            <p style="color:#64748b; font-size:12px; margin-top:4px;">Multi-Specialty Healthcare — Consultation Record</p>
+        </div>
+        <div style="text-align:right; font-size:13px; color:#475569;">
+            <p style="font-weight:700; color:#1e293b; margin-bottom:2px;">Consultation Summary</p>
+            <p>Date: @DateTime.Now.ToString("dd-MM-yyyy HH:mm")</p>
+        </div>
+    </div>
+
+    <!-- Patient Info -->
+    <div style="background:#f8fafc; padding:14px 18px; border-radius:10px; display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px; font-size:14px; border:1px solid #e2e8f0;">
+        <div><span style="color:#64748b;">Patient Name:</span> <strong style="color:#0f172a;">@Model.PatientName</strong></div>
+        <div><span style="color:#64748b;">MMR Code:</span> <strong style="color:#2563eb;">@Model.MMRCode</strong></div>
+    </div>
+
+    <!-- Clinical -->
+    <div style="font-size:14px; color:#334155; margin-bottom:20px;">
+        <div style="margin-bottom:16px;">
+            <h4 style="color:#0f172a; font-size:12px; font-weight:700; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:8px;">
+                1. Symptoms / Chief Complaints
+            </h4>
+            <p style="background:#fafafa; padding:10px 14px; border-radius:6px; line-height:1.6; margin:0;">@Model.Symptoms</p>
+        </div>
+        <div style="margin-bottom:16px;">
+            <h4 style="color:#0f172a; font-size:12px; font-weight:700; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:8px;">
+                2. Diagnosis
+            </h4>
+            <p style="background:#eff6ff; padding:10px 14px; border-radius:6px; line-height:1.6; margin:0; font-weight:600; color:#1e3a8a;">@Model.Diagnosis</p>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.ClinicalNotes))
+        {
+            <div style="margin-bottom:16px;">
+                <h4 style="color:#0f172a; font-size:12px; font-weight:700; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:8px;">
+                    3. Clinical Notes / Advice
+                </h4>
+                <p style="background:#fafafa; padding:10px 14px; border-radius:6px; line-height:1.6; margin:0; font-style:italic;">@Model.ClinicalNotes</p>
+            </div>
+        }
+    </div>
+
+    <!-- Prescription -->
+    @if (Model.PrescribedMedicines?.Count > 0)
+    {
+        <div style="margin-bottom:20px;">
+            <h4 style="color:#0f172a; font-size:12px; font-weight:700; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:10px;">
+                <i class="fa-solid fa-pills" style="color:#6366f1;"></i> Prescription (Rx)
+            </h4>
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                <thead>
+                    <tr style="background:#f8fafc; color:#475569; border-bottom:1px solid #e2e8f0;">
+                        <th style="padding:10px 12px; text-align:left;">Medicine</th>
+                        <th style="padding:10px 12px; text-align:left;">Dosage</th>
+                        <th style="padding:10px 12px; text-align:left;">Frequency</th>
+                        <th style="padding:10px 12px; text-align:left;">Duration</th>
+                        <th style="padding:10px 12px; text-align:left;">Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var med in Model.PrescribedMedicines)
+                    {
+                        <tr style="border-bottom:1px solid #f1f5f9;">
+                            <td style="padding:10px 12px; font-weight:600; color:#1e293b;">@med.MedicineName</td>
+                            <td style="padding:10px 12px; color:#475569;">@med.Dosage</td>
+                            <td style="padding:10px 12px; color:#475569;">@med.Frequency</td>
+                            <td style="padding:10px 12px; color:#475569;">@med.Duration</td>
+                            <td style="padding:10px 12px; font-weight:700; color:#0f172a;">@med.Quantity</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- Lab Tests -->
+    @if (Model.OrderedLabTests?.Count > 0)
+    {
+        <div style="margin-bottom:20px;">
+            <h4 style="color:#0f172a; font-size:12px; font-weight:700; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:10px;">
+                <i class="fa-solid fa-flask-vial" style="color:#10b981;"></i> Lab Tests Ordered
+            </h4>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                @foreach (var t in Model.OrderedLabTests)
+                {
+                    <span style="background:#d1fae5; color:#065f46; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600;">@t</span>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Follow-up -->
+    @if (Model.FollowUpDate.HasValue)
+    {
+        <div style="background:#eff6ff; padding:12px 16px; border-radius:8px; border:1px solid #bfdbfe; display:inline-block; font-size:14px; margin-bottom:20px;">
+            <i class="fa-solid fa-calendar-check" style="color:#2563eb;"></i>
+            Follow-up Date: <strong>@Model.FollowUpDate.Value.ToString("dd MMM yyyy")</strong>
+        </div>
+    }
+
+    <!-- Signature -->
+    <div style="margin-top:40px; display:flex; justify-content:space-between; align-items:flex-end; border-top:1px dashed #cbd5e1; padding-top:18px;">
+        <div style="font-size:11px; color:#94a3b8;">* System-generated consultation record — Infinity CMS 2026</div>
+        <div style="text-align:center; width:180px; border-top:1px solid #475569; padding-top:6px; font-size:12px; font-weight:600; color:#1e293b;">
+            Authorised Doctor Signature
+        </div>
+    </div>
+</div>
+
+<div style="text-align:center; margin:24px 0;">
+    <a asp-action="ViewAppointments" class="btn-custom" style="background:#64748b; padding:11px 22px; margin-right:10px;">
+        <i class="fa-solid fa-arrow-left"></i> Back to Appointments
+    </a>
+    <a asp-action="Dashboard" class="btn-custom" style="padding:11px 22px;">
+        <i class="fa-solid fa-house"></i> Dashboard
+    </a>
+</div>
+
+<script>
+    function printReport() {
+        var btn = document.querySelector('button[onclick="printReport()"]');
+        var originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+        btn.disabled = true;
+
+        var element = document.getElementById('printableArea');
+
+        var opt = {
+            margin:      [10, 10, 10, 10],
+            filename:    'Consultation_@(Model.MMRCode)_@(Model.PatientName.Replace(" ", "_")).pdf',
+            image:       { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(function () {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    }
+</script>

@@ -1,0 +1,486 @@
+﻿@model InfinityCoderzz_CMSV2026.Models.Appointment
+
+@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Create Appointment";
+    ViewData["ActiveNav"] = "Appointments";
+
+    var patient = ViewBag.SelectedPatient as InfinityCoderzz_CMSV2026.Models.Patient;
+    var doctors = ViewBag.DoctorList as List<InfinityCoderzz_CMSV2026.Models.Doctor> ?? new();
+    var departments = doctors
+        .Where(d => !string.IsNullOrWhiteSpace(d.DepartmentName))
+        .GroupBy(d => new { d.DepartmentId, d.DepartmentName })
+        .Select(g => g.Key)
+        .ToList();
+
+    string todayValue = DateTime.Today.ToString("yyyy-MM-dd");
+    string tomorrowValue = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="page-title">Create Appointment</h4>
+        <p class="page-sub">Schedule a consultation for the selected patient.</p>
+    </div>
+
+    <a asp-controller="Home" asp-action="Index" class="btn-outline-cms">
+        ← Back to Dashboard
+    </a>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="cms-alert cms-alert-danger">
+        ⚠ @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (patient != null)
+{
+    <div class="cms-card mb-3">
+        <div class="cms-card-header">
+            <span class="cms-card-title">👤 Patient Information</span>
+        </div>
+
+        <div class="cms-card-body">
+            <div class="row g-2" style="font-size:13px">
+                <div class="col-md-4">
+                    <strong>MMR No :</strong>
+                    <span style="color:var(--blue);font-weight:700">@patient.PatientCode</span>
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Patient Name :</strong>
+                    @patient.FullName
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Mobile :</strong>
+                    @(patient.MobileNumber ?? "—")
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Age :</strong>
+                    @(patient.Age.HasValue? patient.Age + " Years" : "—")
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Gender :</strong>
+                    @(patient.Gender ?? "—")
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Email :</strong>
+                    @(patient.Email ?? "—")
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<form asp-action="Create" method="post" id="apptForm">
+
+    @if (patient != null)
+    {
+        <input type="hidden" asp-for="PatientId" value="@patient.PatientId" />
+    }
+    else
+    {
+        <div class="cms-alert cms-alert-warn">
+            Please select a patient before creating an appointment.
+        </div>
+    }
+
+    <div class="row g-3">
+
+        <div class="col-md-7">
+            <div class="cms-card">
+                <div class="cms-card-header">
+                    <span class="cms-card-title">📅 Appointment Details</span>
+                </div>
+
+                <div class="cms-card-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label-cms">
+                                Department <span class="req">*</span>
+                            </label>
+
+                            <select id="departmentId"
+                                    name="DepartmentId"
+                                    class="form-control-cms"
+                                    required>
+                                <option value="">Select Department</option>
+
+                                @foreach (var dept in departments)
+                                {
+                                    <option value="@dept.DepartmentId">
+                                        @dept.DepartmentName
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label-cms">
+                                Doctor <span class="req">*</span>
+                            </label>
+
+                            <select asp-for="DoctorId"
+                                    id="doctorId"
+                                    class="form-control-cms"
+                                    required>
+                                <option value="">Select Doctor</option>
+
+                                @foreach (var d in doctors)
+                                {
+                                    <option value="@d.DoctorId"
+                                            data-department="@d.DepartmentId"
+                                            data-fee="@d.ConsultationFee">
+                                        Dr. @d.FullName
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label-cms">
+                                Consultation Type <span class="req">*</span>
+                            </label>
+
+                            <select name="ConsultationType"
+                                    id="consultationType"
+                                    class="form-control-cms"
+                                    required>
+                                <option value="">Select Consultation Type</option>
+                                <option value="New Consultation">New Consultation</option>
+                                <option value="Follow Up">Follow Up</option>
+                                <option value="Review">Review</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label-cms">
+                                Appointment Date <span class="req">*</span>
+                            </label>
+
+                            <select asp-for="AppointmentDate"
+                                    id="appointmentDate"
+                                    class="form-control-cms"
+                                    required>
+                                <option value="@todayValue">
+                                    Today (@DateTime.Today.ToString("dd-MMM-yyyy"))
+                                </option>
+
+                                <option value="@tomorrowValue">
+                                    Tomorrow (@DateTime.Today.AddDays(1).ToString("dd-MMM-yyyy"))
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label-cms">
+                                Appointment Time <span class="req">*</span>
+                            </label>
+
+                            <select asp-for="AppointmentTime"
+                                    id="appointmentTime"
+                                    class="form-control-cms"
+                                    required>
+                                <option value="">Select Time Slot</option>
+                                <option value="09:00:00">09:00 AM</option>
+                                <option value="09:15:00">09:15 AM</option>
+                                <option value="09:30:00">09:30 AM</option>
+                                <option value="09:45:00">09:45 AM</option>
+                                <option value="10:00:00">10:00 AM</option>
+                                <option value="10:15:00">10:15 AM</option>
+                                <option value="10:30:00">10:30 AM</option>
+                                <option value="10:45:00">10:45 AM</option>
+                                <option value="11:00:00">11:00 AM</option>
+                                <option value="11:15:00">11:15 AM</option>
+                                <option value="11:30:00">11:30 AM</option>
+                                <option value="11:45:00">11:45 AM</option>
+                                <option value="12:00:00">12:00 PM</option>
+                                <option value="12:15:00">12:15 PM</option>
+                                <option value="12:30:00">12:30 PM</option>
+                                <option value="12:45:00">12:45 PM</option>
+                                <option value="14:00:00">02:00 PM</option>
+                                <option value="14:15:00">02:15 PM</option>
+                                <option value="14:30:00">02:30 PM</option>
+                                <option value="14:45:00">02:45 PM</option>
+                                <option value="15:00:00">03:00 PM</option>
+                                <option value="15:15:00">03:15 PM</option>
+                                <option value="15:30:00">03:30 PM</option>
+                                <option value="15:45:00">03:45 PM</option>
+                                <option value="16:00:00">04:00 PM</option>
+                                <option value="16:15:00">04:15 PM</option>
+                                <option value="16:30:00">04:30 PM</option>
+                                <option value="16:45:00">04:45 PM</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label-cms">
+                                Consultation Fee
+                            </label>
+
+                            <input type="text"
+                                   id="consultationFee"
+                                   class="form-control-cms readonly-field"
+                                   value="₹ 0.00"
+                                   readonly />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label-cms">
+                                Reason For Visit <span class="req">*</span>
+                            </label>
+
+                            <textarea name="ReasonForVisit"
+                                      id="reasonForVisit"
+                                      class="form-control-cms"
+                                      rows="3"
+                                      maxlength="250"
+                                      required
+                                      placeholder="Enter reason for visit"></textarea>
+
+                            <div style="font-size:11px;color:var(--muted);text-align:right;margin-top:2px">
+                                <span id="charCount">0</span> / 250
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="cms-alert cms-alert-info mt-3">
+                        ℹ Appointment number and token will be generated internally after booking.
+                    </div>
+
+                    <div class="d-flex gap-3 mt-3">
+                        <button type="submit" class="btn-success-cms">
+                            📅 Save Appointment
+                        </button>
+
+                        <button type="button"
+                                class="btn-warn-cms"
+                                onclick="clearAppointmentForm()">
+                            ✋ Clear
+                        </button>
+
+                        <a asp-controller="Receptionists"
+                           asp-action="Dashboard"
+                           class="btn-danger-cms">
+                            ✖ Cancel
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="cms-card">
+                <div class="cms-card-header">
+                    <span class="cms-card-title">📋 Appointment Summary</span>
+                </div>
+
+                <div class="cms-card-body">
+                    <div class="info-grid">
+                        <span class="info-key">Patient <span class="colon"></span></span>
+                        <span class="info-val">@(patient?.FullName ?? "—")</span>
+
+                        <span class="info-key">MMR No <span class="colon"></span></span>
+                        <span class="info-val" style="color:var(--blue)">
+                            @(patient?.PatientCode ?? "—")
+                        </span>
+
+                        <span class="info-key">Department <span class="colon"></span></span>
+                        <span class="info-val" id="sumDepartment">—</span>
+
+                        <span class="info-key">Doctor <span class="colon"></span></span>
+                        <span class="info-val" id="sumDoctor">—</span>
+
+                        <span class="info-key">Date <span class="colon"></span></span>
+                        <span class="info-val" id="sumDate">—</span>
+
+                        <span class="info-key">Time <span class="colon"></span></span>
+                        <span class="info-val" id="sumTime">—</span>
+
+                        <span class="info-key">Consultation Type <span class="colon"></span></span>
+                        <span class="info-val" id="sumType">—</span>
+
+                        <span class="info-key">Fee <span class="colon"></span></span>
+                        <span class="info-val"
+                              id="sumFee"
+                              style="color:var(--green);font-weight:700">
+                            ₹ 0.00
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-bar mt-3">
+                ℹ Please verify patient, doctor, date, time and fee before saving.
+            </div>
+        </div>
+
+    </div>
+</form>
+
+@section Scripts {
+
+    <script>
+
+        const departmentId = document.getElementById('departmentId');
+        const doctorId = document.getElementById('doctorId');
+        const appointmentDate = document.getElementById('appointmentDate');
+        const appointmentTime = document.getElementById('appointmentTime');
+        const consultationType = document.getElementById('consultationType');
+        const consultationFee = document.getElementById('consultationFee');
+        const reasonForVisit = document.getElementById('reasonForVisit');
+        const charCount = document.getElementById('charCount');
+
+        const allDoctorOptions = Array.from(doctorId.options).map(function(option)
+        {
+            return option.cloneNode(true);
+        });
+
+        function filterDoctors()
+        {
+            const selectedDepartment = departmentId.value;
+
+            doctorId.innerHTML = '<option value="">Select Doctor</option>';
+
+            allDoctorOptions.forEach(function(option)
+            {
+                if (!option.value)
+                    return;
+
+                if (option.getAttribute('data-department') === selectedDepartment)
+                {
+                    doctorId.appendChild(option.cloneNode(true));
+                }
+            });
+
+            consultationFee.value = '₹ 0.00';
+            updateSummary();
+        }
+
+        function updateFee()
+        {
+            const selectedDoctor = doctorId.options[doctorId.selectedIndex];
+
+            if (selectedDoctor && selectedDoctor.value)
+            {
+                const fee = parseFloat(selectedDoctor.getAttribute('data-fee') || '0');
+                consultationFee.value = '₹ ' + fee.toFixed(2);
+            }
+            else
+            {
+                consultationFee.value = '₹ 0.00';
+            }
+
+            updateSummary();
+        }
+
+        function updateSummary()
+        {
+            const deptText =
+                departmentId.options[departmentId.selectedIndex]?.text || '—';
+
+            const docText =
+                doctorId.options[doctorId.selectedIndex]?.text || '—';
+
+            const dateText =
+                appointmentDate.options[appointmentDate.selectedIndex]?.text || '—';
+
+            const timeText =
+                appointmentTime.options[appointmentTime.selectedIndex]?.text || '—';
+
+            const typeText =
+                consultationType.options[consultationType.selectedIndex]?.text || '—';
+
+            document.getElementById('sumDepartment').textContent =
+                departmentId.value ? deptText : '—';
+
+            document.getElementById('sumDoctor').textContent =
+                doctorId.value ? docText : '—';
+
+            document.getElementById('sumDate').textContent =
+                appointmentDate.value ? dateText : '—';
+
+            document.getElementById('sumTime').textContent =
+                appointmentTime.value ? timeText : '—';
+
+            document.getElementById('sumType').textContent =
+                consultationType.value ? typeText : '—';
+
+            document.getElementById('sumFee').textContent =
+                consultationFee.value || '₹ 0.00';
+        }
+
+                function loadBookedSlots() {
+            const selectedDoctorId = doctorId.value;
+            const selectedDate = appointmentDate.value;
+
+            Array.from(appointmentTime.options).forEach(function (option) {
+                option.disabled = false;
+
+                if (option.value && option.text.includes('Booked')) {
+                    option.text = option.text.replace(' - Booked', '');
+                }
+            });
+
+            if (!selectedDoctorId || !selectedDate) {
+                return;
+            }
+
+            fetch('/Appointments/GetBookedSlots?doctorId=' + selectedDoctorId + '&appointmentDate=' + selectedDate)
+                .then(response => response.json())
+                .then(bookedSlots => {
+                    Array.from(appointmentTime.options).forEach(function (option) {
+                        if (bookedSlots.includes(option.value)) {
+                            option.disabled = true;
+                            option.text = option.text + ' - Booked';
+                        }
+                    });
+                });
+        }
+
+        function clearAppointmentForm()
+        {
+            document.getElementById('apptForm').reset();
+            filterDoctors();
+            consultationFee.value = '₹ 0.00';
+            charCount.textContent = '0';
+            updateSummary();
+        }
+
+        reasonForVisit.addEventListener('input', function()
+        {
+            charCount.textContent = this.value.length;
+        });
+
+        departmentId.addEventListener('change', filterDoctors);
+                doctorId.addEventListener('change', function () {
+
+            updateFee();
+            loadBookedSlots();
+        });
+
+        appointmentDate.addEventListener('change', function () {
+
+            updateSummary();
+            loadBookedSlots();
+        });
+        appointmentTime.addEventListener('change', updateSummary);
+        consultationType.addEventListener('change', updateSummary);
+
+        filterDoctors();
+        updateSummary();
+        loadBookedSlots();
+
+    </script>
+
+}

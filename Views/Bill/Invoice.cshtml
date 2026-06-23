@@ -1,0 +1,107 @@
+@model InfinityCoderzz_CMSV2026.Models.pharmacist.BillViewModel
+@{
+    Layout = null;
+    var items = ViewBag.Items as IEnumerable<InfinityCoderzz_CMSV2026.Models.pharmacist.BillItemViewModel>
+                ?? Enumerable.Empty<InfinityCoderzz_CMSV2026.Models.pharmacist.BillItemViewModel>();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice @RefNo.Bill(Model.BillId) — Infinity Clinic Pharmacy</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, 'Segoe UI', sans-serif; color: #1e293b; padding: 32px; font-size: 14px; }
+        .invoice { max-width: 800px; margin: 0 auto; }
+        .head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #198754; padding-bottom: 16px; margin-bottom: 20px; }
+        .brand { font-size: 24px; font-weight: 700; color: #198754; }
+        .brand-sub { font-size: 12px; color: #64748b; }
+        .doc-title { font-size: 22px; font-weight: 700; text-align: right; }
+        .meta { text-align: right; font-size: 13px; color: #475569; margin-top: 4px; }
+        .parties { margin-bottom: 20px; }
+        .parties .label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: #94a3b8; font-weight: 600; }
+        .parties .name { font-size: 16px; font-weight: 700; margin-top: 2px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th { background: #eaf4ee; text-align: left; padding: 10px 12px; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; border-bottom: 2px solid #a3cfbb; }
+        td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; }
+        .text-end { text-align: right; }
+        .text-center { text-align: center; }
+        .total-row td { font-weight: 700; font-size: 15px; border-top: 2px solid #e2e8f0; }
+        .total-amt { color: #198754; }
+        .status { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status.active { background: #d1e7dd; color: #146c43; }
+        .status.cancelled { background: #f1f5f9; color: #334155; }
+        .footer { margin-top: 28px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+        .actions { max-width: 800px; margin: 0 auto 16px; text-align: right; }
+        .btn { display: inline-block; background: #198754; color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; }
+        @@media print { .actions { display: none; } body { padding: 0; } }
+    </style>
+</head>
+<body>
+    <div class="actions">
+        <button class="btn" onclick="window.print()">Print</button>
+    </div>
+    <div class="invoice">
+        <div class="head">
+            <div>
+                <div class="brand">Infinity Clinic</div>
+                <div class="brand-sub">Pharmacy Department</div>
+            </div>
+            <div>
+                <div class="doc-title">INVOICE</div>
+                <div class="meta">Bill No: @RefNo.Bill(Model.BillId)</div>
+                <div class="meta">Date: @Model.BillDate.ToString("dd MMM yyyy hh:mm tt")</div>
+                <div class="meta">
+                    Status:
+                    <span class="status @(Model.Status == "Cancelled" ? "cancelled" : "active")">@Model.Status</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="parties">
+            <div class="label">Billed To</div>
+            <div class="name">@(Model.PatientName ?? $"Patient #{Model.PatientId}")</div>
+            @if (!string.IsNullOrWhiteSpace(Model.PatientCode))
+            {
+                <div style="font-size:12px;color:#64748b;">Patient Code: @Model.PatientCode</div>
+            }
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:40px;">#</th>
+                    <th>Medicine</th>
+                    <th class="text-center" style="width:60px;">Qty</th>
+                    <th class="text-end" style="width:100px;">Unit Price</th>
+                    <th class="text-end" style="width:110px;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int idx = 1; }
+                @foreach (var item in items)
+                {
+                    <tr>
+                        <td>@idx</td>
+                        <td>@item.MedicineName</td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-end">₹@item.UnitPrice.ToString("N2")</td>
+                        <td class="text-end">₹@item.Amount.ToString("N2")</td>
+                    </tr>
+                    idx++;
+                }
+                <tr class="total-row">
+                    <td colspan="4" class="text-end">Total Amount</td>
+                    <td class="text-end total-amt">₹@Model.TotalAmount.ToString("N2")</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            This is a computer-generated invoice and does not require a signature.<br />
+            Infinity Clinic Pharmacy &middot; Thank you for your visit.
+        </div>
+    </div>
+</body>
+</html>

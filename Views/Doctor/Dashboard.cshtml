@@ -1,0 +1,53 @@
+@model InfinityCoderzz_CMSV2026.Models.DashboardStatsViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
+    ViewData["ActiveMenu"] = "Dashboard";
+}
+@if (TempData["Error"] != null)
+{
+    <h3 style="color:red">@TempData["Error"]</h3>
+}
+
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
+    <div>
+        <h1 style="color:#0f172a; font-size:26px; font-weight:700;">Welcome, @ViewBag.DoctorName 👨‍⚕️</h1>
+        <p style="color:#64748b; margin-top:5px;">Manage appointments, consultations, prescriptions and reports.</p>
+    </div>
+    <div style="background:#dbeafe; padding:12px 20px; border-radius:12px; color:#0369a1; font-weight:700;">
+        Doctor Dashboard
+    </div>
+</div>
+
+<!-- Stats -->
+<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:28px;">
+    <div style="background:linear-gradient(135deg,#3b82f6,#0ea5e9); padding:24px; border-radius:18px; color:white;">
+        <i class="fa-solid fa-calendar-check fa-2x"></i>
+        <div style="font-size:34px; font-weight:700; margin:8px 0 4px;">@Model.TodayTotal</div>
+        <div style="font-size:14px; opacity:0.9;">Today's Appointments</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#10b981,#059669); padding:24px; border-radius:18px; color:white;">
+        <i class="fa-solid fa-user-clock fa-2x"></i>
+        <div style="font-size:34px; font-weight:700; margin:8px 0 4px;">@Model.TodayPending</div>
+        <div style="font-size:14px; opacity:0.9;">Pending</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#6366f1,#4f46e5); padding:24px; border-radius:18px; color:white;">
+        <i class="fa-solid fa-file-medical fa-2x"></i>
+        <div style="font-size:34px; font-weight:700; margin:8px 0 4px;">@Model.ConsultationsDone</div>
+        <div style="font-size:14px; opacity:0.9;">Consultations Done Today</div>
+    </div>
+</div>
+
+<!-- Quick actions -->
+<div style="background:white; padding:28px; border-radius:18px; border:1px solid #e2e8f0; text-align:center;">
+    <h3 style="color:#1e293b; margin-bottom:20px;">Quick Access</h3>
+    <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap;">
+        <a asp-action="ViewAppointments" class="btn-custom" style="padding:14px 28px;">
+            <i class="fa-solid fa-calendar-days"></i> View Appointments
+        </a>
+        <a asp-action="HistoryAndReports" class="btn-custom" style="background:linear-gradient(135deg,#10b981,#059669); padding:14px 28px;">
+            <i class="fa-solid fa-magnifying-glass"></i> Patient History & Reports
+        </a>
+    </div>
+</div>

@@ -1,0 +1,92 @@
+﻿@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Patient Registered Successfully";
+    ViewData["ActiveNav"] = "Register";
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="page-title">Patient Registered Successfully</h4>
+        <p class="page-sub">The patient has been added to the clinic system.</p>
+    </div>
+
+    <a asp-controller="Home"
+       asp-action="Index"
+       class="btn-outline-cms">
+        ← Back to Dashboard
+    </a>
+</div>
+
+<div class="cms-card" style="max-width:720px;margin:0 auto;padding:40px 32px;text-align:center">
+    <div class="success-circle">✓</div>
+
+    <h4 style="color:var(--green);font-size:20px;font-weight:700;margin-bottom:6px">
+        Patient Registered Successfully!
+    </h4>
+
+    <p style="color:var(--muted);font-size:13px;margin-bottom:28px">
+        The patient record has been created successfully.
+    </p>
+
+    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius);padding:22px 28px;text-align:left;margin-bottom:28px">
+        <div class="info-grid">
+            <span class="info-key">MMR No <span class="colon"></span></span>
+            <span class="info-val" style="color:var(--green);font-weight:700">
+                @ViewBag.PatientCode
+            </span>
+
+            <span class="info-key">Patient Name <span class="colon"></span></span>
+            <span class="info-val" style="font-weight:700">
+                @ViewBag.FullName
+            </span>
+
+            <span class="info-key">Mobile Number <span class="colon"></span></span>
+            <span class="info-val">
+                @ViewBag.Mobile
+            </span>
+
+            <span class="info-key">Date of Birth <span class="colon"></span></span>
+            <span class="info-val">
+                @(string.IsNullOrWhiteSpace(ViewBag.DOB as string) ? "—" : ViewBag.DOB)
+            </span>
+
+            <span class="info-key">Age <span class="colon"></span></span>
+            <span class="info-val">
+                @(string.IsNullOrWhiteSpace(ViewBag.Age as string) ? "—" : ViewBag.Age + " Years")
+            </span>
+
+            <span class="info-key">Gender <span class="colon"></span></span>
+            <span class="info-val">
+                @ViewBag.Gender
+            </span>
+        </div>
+    </div>
+
+    <h6 style="font-weight:700;margin-bottom:10px">
+        Do you want to create an appointment for this patient?
+    </h6>
+
+    <p style="font-size:13px;color:var(--muted);margin-bottom:22px">
+        Choose Yes to schedule a doctor consultation now.
+    </p>
+
+    <div class="d-flex justify-content-center gap-3">
+        <a asp-controller="Appointments"
+           asp-action="Create"
+           asp-route-patientId="@ViewBag.PatientId"
+           class="btn-success-cms">
+            ✓ Yes, Create Appointment
+        </a>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn-outline-cms">
+            ✖ No, Go to Dashboard
+        </a>
+    </div>
+
+    <div class="tip-bar mt-4" style="text-align:left">
+        ℹ You can search this patient anytime using MMR No or Mobile Number.
+    </div>
+</div>

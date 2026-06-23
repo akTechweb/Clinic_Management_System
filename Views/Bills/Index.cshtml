@@ -1,0 +1,130 @@
+﻿@model IEnumerable<InfinityCoderzz_CMSV2026.Models.Bill>
+
+@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Billing";
+    ViewData["ActiveNav"] = "Billing";
+    ViewData["ShowTopbarInfo"] = true;
+
+    var list = Model?.ToList() ?? new List<InfinityCoderzz_CMSV2026.Models.Bill>();
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="page-title">Billing Records</h4>
+        <p class="page-sub">View consultation and registration billing records.</p>
+    </div>
+
+    <a asp-controller="Appointments" asp-action="Index" class="btn-outline-cms">
+        📅 Appointments
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cms-alert cms-alert-success">✓ @TempData["SuccessMessage"]</div>
+}
+
+<div class="cms-card">
+    <div style="overflow-x:auto">
+        <table class="cms-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Bill ID</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Appointment No</th>
+                    <th>Bill Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (list.Any())
+                {
+                    int i = 1;
+
+                    foreach (var b in list)
+                    {
+                        <tr>
+                            <td>@i</td>
+
+                            <td>
+                                <a class="mmr-link" asp-action="Details" asp-route-id="@b.BillId">
+                                    #@b.BillId
+                                </a>
+                            </td>
+
+                            <td>
+                                <strong>@b.PatientName</strong>
+                                <small class="d-block" style="color:var(--muted)">
+                                    @b.PatientCode
+                                </small>
+                            </td>
+
+                            <td>
+                                @(b.DoctorName != null ? "Dr. " + b.DoctorName : "—")
+                            </td>
+
+                            <td style="font-family:monospace;font-size:12px">
+                                @(b.AppointmentNumber ?? "—")
+                            </td>
+
+                            <td>
+                                @(b.BillDate.HasValue? b.BillDate.Value.ToString("dd MMM yyyy") : "—")
+                            </td>
+
+                            <td>
+                                <strong style="color:var(--green)">
+                                    ₹@b.TotalAmount.ToString("N2")
+                                </strong>
+                            </td>
+
+                            <td>
+                                @switch (b.Status)
+                                {
+                                    case "Paid":
+                                        <span class="badge-cms badge-success">Paid</span>
+                                        break;
+
+                                    case "Pending":
+                                        <span class="badge-cms badge-warn">Pending</span>
+                                        break;
+
+                                    default:
+                                        <span class="badge-cms badge-gray">@b.Status</span>
+                                        break;
+                                }
+                            </td>
+
+                            <td>
+                                <a asp-action="Details"
+                                   asp-route-id="@b.BillId"
+                                   class="btn-outline-cms btn-sm-cms">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+
+                        i++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <div class="ei">🧾</div>
+                                <p>No bills found.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

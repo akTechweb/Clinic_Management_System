@@ -1,0 +1,360 @@
+﻿@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Receptionist Reports";
+    ViewData["ActiveNav"] = "Reports";
+    ViewData["ShowTopbarInfo"] = true;
+
+    var reportType = ViewBag.ReportType as string ?? "Appointment";
+
+    var appointments = ViewBag.AppointmentList as List<InfinityCoderzz_CMSV2026.Models.Appointment>
+                       ?? new List<InfinityCoderzz_CMSV2026.Models.Appointment>();
+
+    var patients = ViewBag.PatientList as List<InfinityCoderzz_CMSV2026.Models.Patient>
+                   ?? new List<InfinityCoderzz_CMSV2026.Models.Patient>();
+
+    var bills = ViewBag.BillList as List<InfinityCoderzz_CMSV2026.Models.Bill>
+                ?? new List<InfinityCoderzz_CMSV2026.Models.Bill>();
+
+    var doctors = ViewBag.Doctors as List<InfinityCoderzz_CMSV2026.Models.Doctor>
+                  ?? new List<InfinityCoderzz_CMSV2026.Models.Doctor>();
+
+    var departments = ViewBag.Departments;
+    decimal totalCollection = ViewBag.TotalCollection ?? 0m;
+    decimal pendingCollection = ViewBag.PendingCollection ?? 0m;
+}
+
+<div class="mb-4">
+    <h4 class="page-title">Receptionist Reports</h4>
+    <p class="page-sub">View appointment, patient registration and collection reports.</p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="rpt-stat">
+            <div class="rpt-stat-lbl">Total Appointments</div>
+            <div class="rpt-stat-val" style="color:var(--blue)">
+                @ViewBag.TotalAppointments
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="rpt-stat">
+            <div class="rpt-stat-lbl">Completed</div>
+            <div class="rpt-stat-val" style="color:var(--green)">
+                @ViewBag.CompletedAppointments
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="rpt-stat">
+            <div class="rpt-stat-lbl">Patient Registrations</div>
+            <div class="rpt-stat-val" style="color:var(--purple)">
+                @ViewBag.TotalRegistrations
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="rpt-stat">
+            <div class="rpt-stat-lbl">Total Collection</div>
+            <div class="rpt-stat-val" style="color:var(--green)">
+                ₹@totalCollection.ToString("N2")
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cms-card mb-4">
+    <div class="cms-card-header">
+        <span class="cms-card-title">🔍 Report Filters</span>
+    </div>
+
+    <div class="cms-card-body">
+        <form asp-action="Index" method="get">
+            <div class="row g-3 align-items-end">
+
+                <div class="col-md-2">
+                    <label class="form-label-cms">Report Type</label>
+                    <select name="reportType" class="form-control-cms">
+                        <option value="Appointment" selected="@(reportType == "Appointment")">
+                            Appointment
+                        </option>
+                        <option value="Patient" selected="@(reportType == "Patient")">
+                            Patient Registration
+                        </option>
+                        <option value="Collection" selected="@(reportType == "Collection")">
+                            Collection
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label-cms">From Date</label>
+                    <input type="date"
+                           name="fromDate"
+                           class="form-control-cms"
+                           value="@ViewBag.FromDate" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label-cms">To Date</label>
+                    <input type="date"
+                           name="toDate"
+                           class="form-control-cms"
+                           value="@ViewBag.ToDate" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label-cms">Doctor</label>
+                    <select name="doctorId" class="form-control-cms">
+                        <option value="">All Doctors</option>
+                        @foreach (var d in doctors)
+                        {
+                            <option value="@d.DoctorId"
+                                    selected="@(ViewBag.DoctorId == d.DoctorId)">
+                                Dr. @d.FullName
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit"
+                            class="btn-primary-cms"
+                            style="flex:1;justify-content:center">
+                        Generate
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn-outline-cms"
+                       style="flex:1;justify-content:center">
+                        Clear
+                    </a>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (reportType == "Appointment")
+{
+    <div class="cms-card">
+        <div class="cms-card-header">
+            <span class="cms-card-title">📅 Appointment Report</span>
+            <button onclick="window.print()" class="btn-outline-cms btn-sm-cms">
+                Print
+            </button>
+        </div>
+
+        <div style="overflow-x:auto">
+            <table class="cms-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Appointment No</th>
+                        <th>MMR No</th>
+                        <th>Patient</th>
+                        <th>Department</th>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Fee</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (appointments.Any())
+                    {
+                        int i = 1;
+
+                        foreach (var a in appointments)
+                        {
+                            <tr>
+                                <td>@i</td>
+                                <td style="font-family:monospace;font-size:12px">
+                                    @a.AppointmentNumber
+                                </td>
+                                <td>@a.PatientCode</td>
+                                <td>@a.PatientName</td>
+                                <td>@a.DepartmentName</td>
+                                <td>Dr. @a.DoctorName</td>
+                                <td>@a.AppointmentDate.ToString("dd MMM yyyy")</td>
+                                <td>@a.AppointmentTime.ToString(@"hh\:mm")</td>
+                                <td>@a.Status</td>
+                                <td>₹@a.ConsultationFee.ToString("N2")</td>
+                            </tr>
+
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="10">
+                                <div class="empty-state">
+                                    <div class="ei">📊</div>
+                                    <p>No appointment report data found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (reportType == "Patient")
+{
+    <div class="cms-card">
+        <div class="cms-card-header">
+            <span class="cms-card-title">👤 Patient Registration Report</span>
+            <button onclick="window.print()" class="btn-outline-cms btn-sm-cms">
+                Print
+            </button>
+        </div>
+
+        <div style="overflow-x:auto">
+            <table class="cms-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>MMR No</th>
+                        <th>Patient Name</th>
+                        <th>Age / Gender</th>
+                        <th>Mobile</th>
+                        <th>Registration Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (patients.Any())
+                    {
+                        int i = 1;
+
+                        foreach (var p in patients)
+                        {
+                            <tr>
+                                <td>@i</td>
+                                <td>@p.PatientCode</td>
+                                <td>@p.FullName</td>
+                                <td>
+                                    @(p.Age.HasValue? p.Age + " Years" : "—")
+                                    /
+                                    @(p.Gender ?? "—")
+                                </td>
+                                <td>@(p.MobileNumber ?? "—")</td>
+                                <td>
+                                    @(p.RegistrationDate.HasValue
+                                                            ? p.RegistrationDate.Value.ToString("dd MMM yyyy")
+                                                            : "—")
+                    </td>
+                </tr>
+
+                                i++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <div class="ei">👤</div>
+                                    <p>No patient registration data found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (reportType == "Collection")
+{
+    <div class="cms-card">
+        <div class="cms-card-header">
+            <span class="cms-card-title">₹ Collection Report</span>
+            <button onclick="window.print()" class="btn-outline-cms btn-sm-cms">
+                Print
+            </button>
+        </div>
+
+        <div style="overflow-x:auto">
+            <table class="cms-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Bill ID</th>
+                        <th>Patient</th>
+                        <th>MMR No</th>
+                        <th>Bill Date</th>
+                        <th>Status</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (bills.Any())
+                    {
+                        int i = 1;
+
+                        foreach (var b in bills)
+                        {
+                            <tr>
+                                <td>@i</td>
+                                <td>#@b.BillId</td>
+                                <td>@b.PatientName</td>
+                                <td>@b.PatientCode</td>
+                                <td>
+                                    @(b.BillDate.HasValue
+                                                            ? b.BillDate.Value.ToString("dd MMM yyyy")
+                                                            : "—")
+                    </td>
+                    <td>@b.Status</td>
+                    <td>₹@b.TotalAmount.ToString("N2")</td>
+                </tr>
+
+                                i++;
+                        }
+
+                        <tr style="font-weight:700;background:#f8fafc">
+                            <td colspan="6" style="text-align:right">Paid Collection</td>
+                            <td style="color:var(--green)">
+                                ₹@totalCollection.ToString("N2")
+                            </td>
+                        </tr>
+
+                        <tr style="font-weight:700;background:#f8fafc">
+                            <td colspan="6" style="text-align:right">Pending Collection</td>
+                            <td style="color:var(--orange)">
+                                ₹@pendingCollection.ToString("N2")
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <div class="ei">₹</div>
+                                    <p>No collection data found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<div class="tip-bar mt-3">
+    ℹ These reports are only for the Receptionist module and do not affect other group modules.
+</div>

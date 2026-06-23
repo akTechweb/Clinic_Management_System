@@ -1,0 +1,75 @@
+﻿@model InfinityCoderzz_CMSV2026.Models.PatientVisit
+@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Visit Details";
+    ViewData["ActiveNav"] = "Records";
+    ViewData["ShowTopbarInfo"] = true;
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="page-title">Visit Details</h4>
+        <p class="page-sub">Visit <span style="color:var(--blue);font-weight:600">#@Model.VisitId</span></p>
+    </div>
+    <a asp-action="Index" class="btn-outline-cms">← Back to List</a>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="cms-card h-100">
+            <div class="cms-card-header"><span class="cms-card-title">🕐 Visit Information</span></div>
+            <div class="cms-card-body">
+                <div class="info-grid">
+                    <span class="info-key">Token <span class="colon"></span></span>
+                    <span class="info-val"><span class="token-chip" style="font-size:15px">T@(Model.TokenNumber.ToString().PadLeft(3, '0'))</span></span>
+                    <span class="info-key">Patient <span class="colon"></span></span>
+                    <span class="info-val"><strong>@Model.PatientName</strong></span>
+                    <span class="info-key">Doctor <span class="colon"></span></span>
+                    <span class="info-val">Dr. @Model.DoctorName</span>
+                    <span class="info-key">Department <span class="colon"></span></span>
+                    <span class="info-val"><span class="badge-cms badge-blue">@Model.DepartmentName</span></span>
+                    <span class="info-key">Appt. No. <span class="colon"></span></span>
+                    <span class="info-val" style="font-family:monospace;font-size:12px">@Model.AppointmentNumber</span>
+                    <span class="info-key">Visit Date <span class="colon"></span></span>
+                    <span class="info-val">@(Model.VisitDate.HasValue? Model.VisitDate.Value.ToString("dd MMM yyyy hh:mm tt") : "—")</span>
+                    <span class="info-key">Status <span class="colon"></span></span>
+                    <span class="info-val">
+                        @switch (Model.VisitStatus)
+                        {
+                            case "Completed":
+                                <span class="badge-cms badge-success">Completed</span>
+                                break;
+                            case "In Progress":
+
+                                <span class="badge-cms badge-warn">In Progress</span>
+                                break;
+                            case "Cancelled":
+
+                                <span class="badge-cms badge-danger">Cancelled</span>
+                                break;
+                            default:
+
+                                <span class="badge-cms badge-gray">@Model.VisitStatus</span>
+                                break;
+                        }
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="cms-card">
+            <div class="cms-card-header"><span class="cms-card-title">⚡ Related Actions</span></div>
+            <div class="cms-card-body d-flex flex-column gap-2">
+                <a asp-controller="Patients" asp-action="Details" asp-route-id="@Model.PatientId"
+                   class="btn-outline-cms" style="justify-content:center">👤 View Patient Profile</a>
+                <a asp-controller="Appointments" asp-action="Details" asp-route-id="@Model.AppointmentId"
+                   class="btn-outline-cms" style="justify-content:center">📅 View Appointment</a>
+                <a asp-controller="Appointments" asp-action="Create" asp-route-patientId="@Model.PatientId"
+                   class="btn-success-cms" style="justify-content:center">📅 New Appointment</a>
+            </div>
+        </div>
+    </div>
+</div>

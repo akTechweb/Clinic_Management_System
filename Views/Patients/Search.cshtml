@@ -1,0 +1,256 @@
+﻿@model IEnumerable<InfinityCoderzz_CMSV2026.Models.Patient>
+
+@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Search Patient";
+    ViewData["ActiveNav"] = "Search";
+    ViewData["ShowTopbarInfo"] = true;
+
+    var results = Model?.ToList() ?? new List<InfinityCoderzz_CMSV2026.Models.Patient>();
+    string searchBy = ViewBag.SearchBy ?? "MMR";
+    string searchText = ViewBag.SearchText ?? "";
+    bool patientNotFound = ViewBag.PatientNotFound ?? false;
+}
+
+<div class="mb-3">
+    <h4 class="page-title">Search Patient</h4>
+    <p class="page-sub">Search registered patients using MMR No or Mobile Number.</p>
+</div>
+
+<div class="cms-card mb-4">
+    <div class="cms-card-header">
+        <span class="cms-card-title">🔍 Search Criteria</span>
+    </div>
+
+    <div class="cms-card-body">
+        <form asp-action="Search" method="get" id="searchForm">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label-cms">Search By <span class="req">*</span></label>
+                    <select name="searchBy" id="searchByField" class="form-control-cms" required>
+                        <option value="MMR" selected="@(searchBy == "MMR")">MMR No</option>
+                        <option value="Mobile" selected="@(searchBy == "Mobile")">Mobile Number</option>
+                    </select>
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label-cms" id="searchLabel">MMR No <span class="req">*</span></label>
+                    <input type="text"
+                           name="searchText"
+                           id="searchText"
+                           class="form-control-cms"
+                           value="@searchText"
+                           placeholder="Enter MMR No"
+                           required />
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit"
+                            class="btn-primary-cms w-100"
+                            style="justify-content:center">
+                        🔍 Search
+                    </button>
+                </div>
+
+                <div class="col-md-2">
+                    <a asp-action="Search"
+                       class="btn-outline-cms w-100"
+                       style="justify-content:center">
+                        ↺ Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (patientNotFound)
+{
+    <div class="cms-card mb-4" style="border-color:#fecaca;background:#fef2f2">
+        <div class="cms-card-body text-center">
+            <div style="font-size:42px;margin-bottom:10px">🔍</div>
+
+            <h5 style="font-weight:700;color:#dc2626;margin-bottom:6px">
+                Patient Not Found
+            </h5>
+
+            <p style="font-size:13px;color:var(--muted);margin-bottom:18px">
+                No patient was found for
+                <strong>@searchText</strong>.
+                Do you want to register a new patient?
+            </p>
+
+            <div class="d-flex justify-content-center gap-3">
+                <a asp-action="Create"
+                   class="btn-success-cms">
+                    ✓ Yes, Register Patient
+                </a>
+
+                <a asp-action="Search"
+                   class="btn-outline-cms">
+                    ✖ No, Search Again
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="cms-card">
+    <div class="cms-card-header">
+        <span class="cms-card-title">👥 Search Results</span>
+
+        <a asp-action="Create"
+           class="btn-primary-cms btn-sm-cms">
+            ＋ Register New Patient
+        </a>
+    </div>
+
+    <div style="overflow-x:auto">
+        <table class="cms-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>MMR No</th>
+                    <th>Patient Name</th>
+                    <th>Age / Gender</th>
+                    <th>Mobile Number</th>
+                    <th>Registered On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (!string.IsNullOrWhiteSpace(searchText) && results.Any())
+                {
+                    int i = 1;
+
+                    foreach (var p in results)
+                    {
+                        <tr>
+                            <td>@i</td>
+
+                            <td>
+                                <a class="mmr-link"
+                                   asp-action="Details"
+                                   asp-route-id="@p.PatientId">
+                                    @p.PatientCode
+                                </a>
+                            </td>
+
+                            <td>
+                                <strong>@p.FullName</strong>
+                            </td>
+
+                            <td>
+                                @(p.Age.HasValue? p.Age + " Years" : "—")
+                                /
+                                @(p.Gender ?? "—")
+                            </td>
+
+                            <td>@(p.MobileNumber ?? "—")</td>
+
+                            <td>
+                                @(p.RegistrationDate.HasValue
+                                                        ? p.RegistrationDate.Value.ToString("dd MMM yyyy")
+                                                        : "—")
+                    </td>
+
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a asp-action="Details"
+                                       asp-route-id="@p.PatientId"
+                                       class="btn-outline-cms btn-sm-cms">
+                                        View
+                                    </a>
+
+                                    <a asp-controller="Appointments"
+                                       asp-action="Create"
+                                       asp-route-patientId="@p.PatientId"
+                                       class="btn-success-cms btn-sm-cms">
+                                        Appointment
+                                    </a>
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@p.PatientId"
+                                       class="btn-outline-cms btn-sm-cms">
+                                        Edit
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                                i++;
+                    }
+                }
+                else if (!string.IsNullOrWhiteSpace(searchText))
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="ei">🔍</div>
+                                <p>No patient matched your search.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="ei">👥</div>
+                                <p>Enter MMR No or Mobile Number above to search patients.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (results.Any())
+    {
+        <div style="padding:12px 18px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)">
+            Showing @results.Count record(s)
+        </div>
+    }
+</div>
+
+<div class="tip-bar mt-3">
+    ℹ Search by MMR No for a specific patient, or by Mobile Number to find patients linked to the same number.
+</div>
+
+@section Scripts {
+    <script>
+        const searchBy = document.getElementById('searchByField');
+        const searchText = document.getElementById('searchText');
+        const searchLabel = document.getElementById('searchLabel');
+
+        function updateSearchBox() {
+            if (searchBy.value === 'Mobile') {
+                searchLabel.innerHTML = 'Mobile Number <span class="req">*</span>';
+                searchText.placeholder = 'Enter 10 digit mobile number';
+                searchText.maxLength = 10;
+                searchText.value = searchText.value.replace(/\D/g, '');
+            } else {
+                searchLabel.innerHTML = 'MMR No <span class="req">*</span>';
+                searchText.placeholder = 'Enter MMR No, example MMR000001';
+                searchText.removeAttribute('maxlength');
+            }
+        }
+
+        searchBy.addEventListener('change', function () {
+            searchText.value = '';
+            updateSearchBox();
+        });
+
+        searchText.addEventListener('input', function () {
+            if (searchBy.value === 'Mobile') {
+                this.value = this.value.replace(/\D/g, '');
+            }
+        });
+
+        updateSearchBox();
+    </script>
+}

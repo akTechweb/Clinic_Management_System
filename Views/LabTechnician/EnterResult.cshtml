@@ -1,0 +1,119 @@
+﻿@model InfinityCoderzz_CMSV2026.Models.EnterLabResultViewModel
+@{
+    Layout = "_LabLayout";
+    ViewData["Title"] = "Enter Lab Result";
+    ViewData["ActiveMenu"] = "PendingTests";
+}
+
+<div style="background:linear-gradient(135deg,#1e3a8a,#3b82f6); padding:18px 24px; border-radius:14px; color:white; margin-bottom:22px; display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h2 style="margin:0; font-size:22px; font-weight:700;"><i class="fa-solid fa-flask-vial"></i> Enter Lab Result</h2>
+        <p style="margin:4px 0 0; opacity:0.85; font-size:13px;">MMR: <strong style="color:#fef08a;">@Model.MMRCode</strong> &nbsp;|&nbsp; Test: <strong style="color:#fef08a;">@Model.TestName</strong></p>
+    </div>
+    <a asp-action="PendingTests" style="color:white; text-decoration:none; background:rgba(255,255,255,0.15); padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600;">
+        <i class="fa-solid fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<form asp-action="EnterResult" method="post" id="resultForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="RequestItemId" />
+    <input type="hidden" asp-for="RequestId" />
+    <input type="hidden" asp-for="ConsultationId" />
+    <input type="hidden" asp-for="DoctorId" />
+    <input type="hidden" asp-for="MMRCode" />
+    <input type="hidden" asp-for="TestId" />
+    <input type="hidden" asp-for="TestName" />
+    <input type="hidden" asp-for="TestDescription" />
+    <input type="hidden" asp-for="NormalRange" />
+    <input type="hidden" asp-for="TestCharge" />   @* FIX 1: was missing — caused ModelState decimal binding failure *@
+    <input type="hidden" asp-for="DoctorName" />
+    <input type="hidden" asp-for="DoctorEmail" />
+    <input type="hidden" asp-for="PatientName" />
+    <input type="hidden" asp-for="Age" />
+    <input type="hidden" asp-for="Gender" />
+    <input type="hidden" asp-for="MobileNumber" />
+    <input type="hidden" asp-for="Status" />
+
+    <div style="display:grid; grid-template-columns:300px 1fr; gap:20px;">
+
+        <!-- LEFT: Patient & Test Info -->
+        <div>
+            <div style="background:white; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:16px; overflow:hidden;">
+                <div style="background:#f8fafc; padding:12px 16px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #e2e8f0; font-size:14px;">
+                    <i class="fa-solid fa-id-card"></i> Patient Info
+                </div>
+                <div style="padding:14px 16px; font-size:14px; color:#334155;">
+                    <p style="margin:0 0 8px;"><strong>Name:</strong> @Model.PatientName</p>
+                    <p style="margin:0 0 8px;"><strong>Age / Gender:</strong> @Model.Age yrs / @Model.Gender</p>
+                    <p style="margin:0;"><strong>Mobile:</strong> @Model.MobileNumber</p>
+                </div>
+            </div>
+
+            <div style="background:white; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+                <div style="background:#f8fafc; padding:12px 16px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #e2e8f0; font-size:14px;">
+                    <i class="fa-solid fa-flask"></i> Test Info
+                </div>
+                <div style="padding:14px 16px; font-size:14px; color:#334155;">
+                    <p style="margin:0 0 8px;"><strong>Test Name:</strong> @Model.TestName</p>
+                    <p style="margin:0 0 8px;"><strong>Description:</strong> @Model.TestDescription</p>
+                    <p style="margin:0 0 8px;"><strong>Normal Range:</strong> @Model.NormalRange</p>
+                    <p style="margin:0 0 8px;"><strong>Charge:</strong> ₹@Model.TestCharge.ToString("0.00")</p>
+                    <p style="margin:0;"><strong>Referring Doctor:</strong> Dr. @Model.DoctorName</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Result Entry -->
+        <div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" style="font-weight:600; font-size:13px;"></div>
+
+            <div style="background:white; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:16px; overflow:hidden;">
+                <div style="background:#f8fafc; padding:12px 16px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #e2e8f0; font-size:14px;">
+                    <i class="fa-solid fa-pen-to-square"></i> Result Entry
+                </div>
+                <div style="padding:16px;">
+                    <div style="margin-bottom:12px;">
+                        <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:4px; display:block;">
+                            Result Value <span style="color:red;">*</span>
+                        </label>
+                        <input asp-for="ResultValue" class="form-control" placeholder="e.g. 13.5 g/dL" required />
+                        <span asp-validation-for="ResultValue" class="text-danger" style="font-size:12px;"></span>
+                    </div>
+
+                    <div style="margin-bottom:12px;">
+                        <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:4px; display:block;">
+                            Observation
+                            @* FIX 2: Removed [Required] asterisk and HTML required attribute.
+                               Observation has no [Required] in the model so HTML required was
+                               blocking submit silently when the field was left blank. *@
+                        </label>
+                        <textarea asp-for="Observation" class="form-control" rows="2" placeholder="Enter observation..."></textarea>
+                        <span asp-validation-for="Observation" class="text-danger" style="font-size:12px;"></span>
+                    </div>
+
+                    <div style="margin-bottom:12px;">
+                        <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:4px; display:block;">Remarks</label>
+                        <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Additional remarks (optional)..."></textarea>
+                    </div>
+
+                    <div style="margin-bottom:0;">
+                        <label style="font-weight:600; font-size:13px; color:#334155; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input asp-for="IsAbnormal" type="checkbox" style="width:18px; height:18px; margin:0;" />
+                            Mark result as ABNORMAL
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:right; margin-bottom:20px;">
+                <a asp-action="PendingTests" class="btn-custom" style="background:#64748b; margin-right:10px; padding:11px 22px;">
+                    <i class="fa-solid fa-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn-custom" style="background:linear-gradient(135deg,#16a34a,#15803d); padding:11px 28px;">
+                    <i class="fa-solid fa-check-circle"></i> Save & Send to Doctor
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

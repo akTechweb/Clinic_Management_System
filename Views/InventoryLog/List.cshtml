@@ -1,0 +1,76 @@
+@model IEnumerable<InfinityCoderzz_CMSV2026.Models.pharmacist.MedicineInventoryLog>
+
+@{
+    Layout = "_PharmacyLayout";
+    ViewData["Title"] = "Inventory Log";
+    ViewData["ActiveMenu"] = "InventoryLog";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <div class="page-title">Inventory Log</div>
+        <div class="page-sub">Stock movement history</div>
+    </div>
+</div>
+
+<div class="cms-card">
+    <div class="cms-card-header">
+        <span class="cms-card-title"><i class="fa-solid fa-list-check"></i> Transaction Log</span>
+        <span style="font-size:12px;color:#64748b;">@Model.Count() records</span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="cms-table">
+            <thead>
+                <tr>
+                    <th>Medicine</th>
+                    <th>Qty Changed</th>
+                    <th>Transaction</th>
+                    <th>Date</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="font-weight:600;">@item.MedicineName</td>
+                            <td>
+                                @if (item.QuantityChanged > 0)
+                                {
+                                    <span style="color:#198754;font-weight:600;">+@item.QuantityChanged</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#475569;font-weight:600;">@item.QuantityChanged</span>
+                                }
+                            </td>
+                            <td>
+                                @{
+                                    var txClass = item.TransactionType?.ToLower() switch {
+                                        "in" or "purchase" or "received" => "badge-success",
+                                        "out" or "dispensed" or "sold"   => "badge-danger",
+                                        "adjustment"                      => "badge-blue",
+                                        _                                 => "badge-gray"
+                                    };
+                                }
+                                <span class="badge-cms @txClass">@item.TransactionType</span>
+                            </td>
+                            <td>@item.TransactionDate.ToString("dd MMM yyyy")</td>
+                            <td style="color:#64748b;">@(item.Remarks ?? "—")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;">
+                            No inventory log records
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

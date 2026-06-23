@@ -1,0 +1,141 @@
+﻿@model InfinityCoderzz_CMSV2026.Models.LabResultPdfViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Lab Report — @Model.PatientName</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
+            background: white;
+            color: #334155;
+        }
+
+        h1 {
+            font-size: 22px;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 10px 12px;
+            text-align: left;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            width: 30%;
+        }
+
+        td {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .abnormal {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .badge-ab {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .badge-ok {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .no-print {
+            display: block;
+        }
+
+        @@media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="display:flex; justify-content:space-between; border-bottom:3px solid #3b82f6; padding-bottom:16px; margin-bottom:20px;">
+        <div>
+            <h1>INFINITY CLINIC MANAGEMENT SYSTEM</h1>
+            <p style="color:#64748b; font-size:12px; margin:4px 0 0;">Lab Test Report — Printed @DateTime.Now.ToString("dd-MM-yyyy HH:mm")</p>
+        </div>
+        <button class="no-print" onclick="window.print()" style="background:#3b82f6; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">
+            🖨 Print / Save PDF
+        </button>
+    </div>
+
+    <div style="background:#f8fafc; padding:14px 18px; border-radius:8px; display:grid; grid-template-columns:repeat(4,1fr); gap:10px; font-size:13px; border:1px solid #e2e8f0; margin-bottom:20px;">
+        <div><span style="color:#64748b;">MMR Code:</span><br /><strong style="color:#2563eb;">@Model.MMRCode</strong></div>
+        <div><span style="color:#64748b;">Patient Name:</span><br /><strong>@Model.PatientName</strong></div>
+        <div><span style="color:#64748b;">Age:</span><br /><strong>@Model.Age Years</strong></div>
+        <div><span style="color:#64748b;">Gender:</span><br /><strong>@Model.Gender</strong></div>
+    </div>
+
+    <h3 style="font-size:14px; font-weight:700; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">Test Result</h3>
+
+    <table>
+        <tbody>
+            <tr><th>Test Name</th><td style="font-weight:600;">@Model.TestName</td></tr>
+            <tr><th>Description</th><td>@Model.TestDescription</td></tr>
+            <tr><th>Normal Range</th><td>@Model.NormalRange</td></tr>
+            <tr>
+                <th>Result Value</th>
+                <td class="@(Model.IsAbnormal ? "abnormal" : "")">
+                    @Model.ResultValue
+                    @if (Model.IsAbnormal)
+                    {
+                        <span class="badge-ab">ABNORMAL</span>
+                    }
+                    else
+                    {
+
+                        <span class="badge-ok">Normal</span>
+                    }
+                </td>
+            </tr>
+            <tr><th>Observation</th><td style="font-style:italic;">@Model.Observation</td></tr>
+            <tr><th>Remarks</th><td>@Model.Remarks</td></tr>
+            <tr><th>Result Date</th><td>@Model.ResultDate.ToString("dd-MM-yyyy HH:mm")</td></tr>
+            <tr><th>Referring Doctor</th><td>Dr. @Model.DoctorName</td></tr>
+            <tr><th>Lab Technician</th><td>@Model.TechnicianName</td></tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top:60px; display:flex; justify-content:flex-end;">
+        <div style="text-align:center; width:200px; border-top:1px solid #475569; padding-top:8px; font-size:12px; font-weight:600; color:#1e293b;">
+            Authorised Lab Signatory
+        </div>
+    </div>
+</body>
+</html>

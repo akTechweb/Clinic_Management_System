@@ -1,0 +1,29 @@
+Ignore Visual Studio temporary files
+
+.vs/
+bin/
+obj/
+
+User-specific files
+
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+ASP.NET Core secrets
+
+appsettings.Development.json
+
+NuGet packages
+
+packages/
+
+Logs
+
+*.log
+
+Rider / VS Code
+
+.idea/
+.vscode/

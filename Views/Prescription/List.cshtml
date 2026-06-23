@@ -1,0 +1,77 @@
+@model IEnumerable<InfinityCoderzz_CMSV2026.Models.pharmacist.Prescription>
+
+@{
+    Layout = "_PharmacyLayout";
+    ViewData["Title"] = "Prescriptions";
+    ViewData["ActiveMenu"] = "Prescriptions";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <div class="page-title">Prescriptions</div>
+        <div class="page-sub">All doctor-issued prescriptions for dispensing</div>
+    </div>
+</div>
+
+<div class="cms-card">
+    <div class="cms-card-header">
+        <span class="cms-card-title">
+            <i class="fa-solid fa-file-prescription"></i> Prescription List
+        </span>
+        <span style="font-size:12px;color:#64748b;">@Model.Count() records</span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="cms-table js-datatable">
+            <thead>
+                <tr>
+                    <th>Prescription No.</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="color:#94a3b8;font-size:12px;">@RefNo.Rx(item.PrescriptionId)</td>
+                            <td style="font-weight:600;">@item.PatientName</td>
+                            <td>@item.DoctorName</td>
+                            <td>@item.PrescriptionDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                @{
+                                    var statusClass = item.Status?.ToLower() switch {
+                                        "dispensed" => "badge-success",
+                                        "pending" => "badge-warn",
+                                        "cancelled" => "badge-danger",
+                                        _ => "badge-gray"
+                                    };
+                                }
+                                <span class="badge-cms @statusClass">@item.Status</span>
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.PrescriptionId"
+                                   class="btn-primary-cms btn-sm-cms">
+                                    <i class="fa-solid fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:32px;color:#94a3b8;">
+                            <i class="fa-solid fa-file-prescription" style="font-size:28px;display:block;margin-bottom:8px;"></i>
+                            No prescriptions found
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

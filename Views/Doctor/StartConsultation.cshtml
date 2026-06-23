@@ -1,0 +1,250 @@
+@using System.Text.Json
+@using System.Collections.Generic
+@model InfinityCoderzz_CMSV2026.Models.ConsultationSetupViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Start Consultation";
+    ViewData["ActiveMenu"] = "ViewAppointments";
+}
+
+<div style="background:linear-gradient(135deg,#1e3a8a,#3b82f6); padding:18px 24px; border-radius:14px; color:white; margin-bottom:22px; display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h2 style="margin:0; font-size:22px; font-weight:700;"><i class="fa-solid fa-user-doctor"></i> Clinical Consultation</h2>
+        <p style="margin:4px 0 0; opacity:0.85; font-size:13px;">MMR: <strong style="color:#fef08a;">@Model.MMRCode</strong> &nbsp;|&nbsp; Appointment #@Model.AppointmentId</p>
+    </div>
+    <a asp-action="ViewAppointments" style="color:white; text-decoration:none; background:rgba(255,255,255,0.15); padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600;">
+        <i class="fa-solid fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<form asp-action="SubmitConsultation" method="post" id="consultForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="AppointmentId" />
+    <input type="hidden" asp-for="MMRCode" />
+    <input type="hidden" asp-for="FullName" />
+    <input type="hidden" asp-for="Age" />
+    <input type="hidden" asp-for="Gender" />
+    <input type="hidden" asp-for="MobileNumber" />
+
+    <div style="display:grid; grid-template-columns:300px 1fr; gap:20px;">
+
+        <!-- LEFT: Patient info + history -->
+        <div>
+            <!-- Patient card -->
+            <div style="background:white; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:16px; overflow:hidden;">
+                <div style="background:#f8fafc; padding:12px 16px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #e2e8f0; font-size:14px;">
+                    <i class="fa-solid fa-id-card"></i> Patient Info
+                </div>
+                <div style="padding:14px 16px; font-size:14px; color:#334155;">
+                    <p style="margin:0 0 8px;"><strong>Name:</strong> @Model.FullName</p>
+                    <p style="margin:0 0 8px;"><strong>Age / Gender:</strong> @Model.Age yrs / @Model.Gender</p>
+                    <p style="margin:0;"><strong>Mobile:</strong> @Model.MobileNumber</p>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div style="background:white; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+                <div style="background:#f8fafc; padding:12px 16px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #e2e8f0; font-size:14px;">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Past Consultations
+                </div>
+                <div style="padding:14px; max-height:340px; overflow-y:auto;">
+                    @if (Model.HistoricalData?.Consultations?.Count > 0)
+                    {
+                        foreach (var h in Model.HistoricalData.Consultations)
+                        {
+                            <div style="background:#f1f5f9; padding:10px; border-radius:8px; margin-bottom:10px; font-size:13px;">
+                                <span style="background:#3b82f6; color:white; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600;">
+                                    @h.VisitDate.ToString("dd-MMM-yyyy")
+                                </span>
+                                <p style="margin:6px 0 2px;"><strong>Diagnosis:</strong> @h.Diagnosis</p>
+                                <p style="margin:0; color:#64748b;"><strong>Symptoms:</strong> @h.Symptoms</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p style="font-size:13px; color:#94a3b8; font-style:italic; text-align:center; padding:20px 0;">No previous history found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Consultation form -->
+        <div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" style="font-weight:600; font-size:13px;"></div>
+
+            <!-- Clinical notes -->
+            <div style="background:white; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:16px; overflow:hidden;">
+                <div style="background:#f8fafc; padding:12px 16px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #e2e8f0; font-size:14px;">
+                    <i class="fa-solid fa-file-medical"></i> Clinical Notes
+                </div>
+                <div style="padding:16px;">
+                    <div style="margin-bottom:12px;">
+                        <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:4px; display:block;">
+                            Symptoms / Chief Complaints <span style="color:red;">*</span>
+                        </label>
+                        <textarea asp-for="Symptoms" class="form-control" rows="2" placeholder="Enter symptoms..." required></textarea>
+                        <span asp-validation-for="Symptoms" class="text-danger" style="font-size:12px;"></span>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:4px; display:block;">
+                            Diagnosis <span style="color:red;">*</span>
+                        </label>
+                        <textarea asp-for="Diagnosis" class="form-control" rows="2" placeholder="Enter diagnosis..." required></textarea>
+                        <span asp-validation-for="Diagnosis" class="text-danger" style="font-size:12px;"></span>
+                    </div>
+                    <div>
+                        <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:4px; display:block;">Notes / Advice</label>
+                        <textarea asp-for="Notes" class="form-control" rows="2" placeholder="General instructions..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prescription -->
+            <div style="background:white; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:16px; overflow:hidden;">
+                <div style="background:#f8fafc; padding:12px 16px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #e2e8f0; font-size:14px; display:flex; justify-content:space-between; align-items:center;">
+                    <span><i class="fa-solid fa-pills"></i> Rx — Prescription</span>
+                    <button type="button" id="addMedBtn" class="btn-custom" style="padding:6px 14px; font-size:12px;">
+                        <i class="fa-solid fa-plus"></i> Add Medicine
+                    </button>
+                </div>
+                <div style="padding:12px; overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;" id="prescTable">
+                        <thead>
+                            <tr style="background:#f8fafc; color:#475569; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:10px 8px; width:28%;">Medicine</th>
+                                <th style="padding:10px 8px; width:16%;">Dosage</th>
+                                <th style="padding:10px 8px; width:18%;">Frequency</th>
+                                <th style="padding:10px 8px; width:14%;">Days</th>
+                                <th style="padding:10px 8px; width:12%;">Total Qty</th>
+                                <th style="padding:10px 8px; width:12%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="medRows"></tbody>
+                    </table>
+                    <p id="noMedMsg" style="text-align:center; color:#94a3b8; font-size:13px; padding:16px; font-style:italic;">No medicines added yet. Click "Add Medicine" to begin.</p>
+                </div>
+            </div>
+
+            <!-- Lab tests + Follow-up -->
+            <div style="background:white; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:20px; overflow:hidden;">
+                <div style="background:#f8fafc; padding:12px 16px; font-weight:700; color:#1e3a8a; border-bottom:1px solid #e2e8f0; font-size:14px;">
+                    <i class="fa-solid fa-flask-vial"></i> Lab Tests & Follow-up
+                </div>
+                <div style="padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                    <div>
+                        <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:6px; display:block;">Order Lab Tests</label>
+                        <div style="border:1px solid #cbd5e1; border-radius:8px; padding:10px; max-height:160px; overflow-y:auto; background:#fafafa;">
+                            @foreach (var t in Model.AvailableLabTests)
+                            {
+                                <div style="margin-bottom:6px;">
+                                    <input type="checkbox" name="SelectedLabTests" value="@t.TestId" id="lt_@t.TestId" style="margin-right:6px;" />
+                                    <label for="lt_@t.TestId" style="font-size:13px; color:#475569; cursor:pointer;">@t.TestName</label>
+                                </div>
+                            }
+                            @if (!Model.AvailableLabTests.Any())
+                            {
+                                <p style="font-size:12px; color:#94a3b8; font-style:italic;">No lab tests available.</p>
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:6px; display:block;">Follow-up Date</label>
+                        <input asp-for="FollowUpDate" type="date" class="form-control" style="margin-top:0;" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div style="text-align:right; margin-bottom:20px;">
+                <a asp-action="ViewAppointments" class="btn-custom" style="background:#64748b; margin-right:10px; padding:11px 22px;">
+                    <i class="fa-solid fa-arrow-left"></i> Cancel
+                </a>
+                <button type="button" onclick="resetForm()" class="btn-custom" style="background:#f59e0b; margin-right:10px; padding:11px 22px;">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+                <button type="submit" class="btn-custom" style="background:linear-gradient(135deg,#16a34a,#15803d); padding:11px 28px;">
+                    <i class="fa-solid fa-check-circle"></i> Complete & Save
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        var medicines = @Html.Raw(JsonSerializer.Serialize(Model.AvailableMedicines ?? new List<InfinityCoderzz_CMSV2026.Models.MedicineLookupModel>()));
+        var rowIdx = 0;
+
+        function buildOptions() {
+            let o = '<option value="">-- Select Medicine --</option>';
+            medicines.forEach(m => { o += `<option value="${m.MedicineId}">${m.MedicineName}</option>`; });
+            return o;
+        }
+
+        function updateNoMedMsg() {
+            var rows = document.getElementById('medRows').querySelectorAll('tr');
+            document.getElementById('noMedMsg').style.display = rows.length === 0 ? '' : 'none';
+        }
+
+        document.getElementById('addMedBtn').addEventListener('click', function () {
+            var i = rowIdx++;
+            var row = `<tr id="mrow_${i}" style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:6px 4px;">
+                    <select name="PrescriptionItems[${i}].MedicineId" class="form-control" required style="font-size:12px; padding:6px; margin-top:0;">${buildOptions()}</select>
+                </td>
+                <td style="padding:6px 4px;">
+                    <select name="PrescriptionItems[${i}].Dosage" class="form-control" style="font-size:12px; padding:6px; margin-top:0;">
+                        <option value="1-0-0">1-0-0 (Morning)</option>
+                        <option value="0-1-0">0-1-0 (Afternoon)</option>
+                        <option value="0-0-1">0-0-1 (Night)</option>
+                        <option value="1-0-1">1-0-1 (Morn+Night)</option>
+                        <option value="1-1-1">1-1-1 (TDS)</option>
+                    </select>
+                </td>
+                <td style="padding:6px 4px;">
+                    <select id="freq_${i}" name="PrescriptionItems[${i}].Frequency" class="form-control" onchange="calcQty(${i})" style="font-size:12px; padding:6px; margin-top:0;">
+                        <option value="1">1x / Day</option>
+                        <option value="2">2x / Day</option>
+                        <option value="3">3x / Day</option>
+                    </select>
+                </td>
+                <td style="padding:6px 4px;">
+                    <input type="number" id="days_${i}" name="PrescriptionItems[${i}].Duration" class="form-control" min="1" placeholder="Days" oninput="calcQty(${i})" required style="font-size:12px; padding:6px; margin-top:0;" />
+                </td>
+                <td style="padding:6px 4px;">
+                    <input type="number" id="qty_${i}" name="PrescriptionItems[${i}].Quantity" class="form-control" value="0" readonly style="font-size:12px; padding:6px; font-weight:700; background:#e2e8f0; margin-top:0;" />
+                </td>
+                <td style="padding:6px 4px; text-align:center;">
+                    <button type="button" onclick="removeRow(${i})" style="background:#ef4444; color:white; border:none; border-radius:6px; padding:5px 10px; cursor:pointer; font-size:12px;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+            document.getElementById('medRows').insertAdjacentHTML('beforeend', row);
+            updateNoMedMsg();
+        });
+
+        function calcQty(i) {
+            var freq = parseInt(document.getElementById('freq_' + i).value) || 0;
+            var days = parseInt(document.getElementById('days_' + i).value) || 0;
+            document.getElementById('qty_' + i).value = freq * days;
+        }
+
+        function removeRow(i) {
+            var r = document.getElementById('mrow_' + i);
+            if (r) r.remove();
+            updateNoMedMsg();
+        }
+
+        function resetForm() {
+            if (confirm('Are you sure you want to reset all fields?')) {
+                document.getElementById('consultForm').reset();
+                document.getElementById('medRows').innerHTML = '';
+                updateNoMedMsg();
+            }
+        }
+
+        updateNoMedMsg();
+    </script>
+}

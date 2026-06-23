@@ -1,0 +1,98 @@
+@model IEnumerable<InfinityCoderzz_CMSV2026.Models.pharmacist.MedicineStock>
+
+@{
+    Layout = "_PharmacyLayout";
+    ViewData["Title"] = "Stock Batches";
+    ViewData["ActiveMenu"] = "MedicineStock";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <div class="page-title">Stock Batches</div>
+        <div class="page-sub">All medicine stock batch records</div>
+    </div>
+    <a asp-action="Create" class="btn-primary-cms">
+        <i class="fa-solid fa-plus"></i> Add Stock
+    </a>
+</div>
+
+<div class="cms-card">
+    <div class="cms-card-header">
+        <span class="cms-card-title"><i class="fa-solid fa-boxes-stacked"></i> Stock Inventory</span>
+        <span style="font-size:12px;color:#64748b;">@Model.Count() batches</span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="cms-table">
+            <thead>
+                <tr>
+                    <th>Stock ID</th>
+                    <th>Medicine</th>
+                    <th>Batch No</th>
+                    <th>Quantity</th>
+                    <th>Purchase Price</th>
+                    <th>Expiry Date</th>
+                    <th>Purchase Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        var isLow = item.Quantity <= 10;
+                        var isExpired = item.ExpiryDate < DateTime.Today;
+                        var isExpiring = !isExpired && item.ExpiryDate < DateTime.Today.AddDays(30);
+                        var alertRow = isLow || isExpired;
+                        <tr class="@(alertRow ? "alert-row" : "")">
+                            <td style="color:#94a3b8;font-size:12px;">@item.StockId</td>
+                            <td style="font-weight:600;">@item.MedicineName</td>
+                            <td>@item.BatchNumber</td>
+                            <td>
+                                @if (isLow)
+                                {
+                                    <span class="badge-cms badge-danger">@item.Quantity (Low)</span>
+                                }
+                                else
+                                {
+                                    <span>@item.Quantity</span>
+                                }
+                            </td>
+                            <td>₹@item.PurchasePrice</td>
+                            <td>
+                                @if (isExpired)
+                                {
+                                    <span class="badge-cms badge-danger">@item.ExpiryDate.ToString("dd MMM yyyy")</span>
+                                }
+                                else if (isExpiring)
+                                {
+                                    <span class="badge-cms badge-warn">@item.ExpiryDate.ToString("dd MMM yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span>@item.ExpiryDate.ToString("dd MMM yyyy")</span>
+                                }
+                            </td>
+                            <td>@(item.PurchaseDate?.ToString("dd MMM yyyy") ?? "—")</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.StockId"
+                                   class="btn-outline-cms btn-sm-cms">
+                                    <i class="fa-solid fa-pen"></i> Edit
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" style="text-align:center;padding:32px;color:#94a3b8;">
+                            <i class="fa-solid fa-boxes-stacked" style="font-size:28px;display:block;margin-bottom:8px;"></i>
+                            No stock records found
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

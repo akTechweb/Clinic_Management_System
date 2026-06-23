@@ -1,0 +1,72 @@
+@model InfinityCoderzz_CMSV2026.Models.PatientFullReportViewModel
+@{
+    Layout = null;
+}
+
+@if (Model == null || string.IsNullOrEmpty(Model.MMRCode))
+{
+    <div style="text-align:center; padding:40px; color:#94a3b8; font-size:14px;">No report data found.</div>
+    return;
+}
+
+<!-- Patient header -->
+<div style="background:#f8fafc; padding:14px 18px; border-radius:10px; margin-bottom:16px; display:grid; grid-template-columns:repeat(4,1fr); gap:10px; font-size:13px; border:1px solid #e2e8f0;">
+    <div><span style="color:#64748b;">MMR:</span> <strong style="color:#2563eb;">@Model.MMRCode</strong></div>
+    <div><span style="color:#64748b;">Name:</span> <strong>@Model.PatientName</strong></div>
+    <div><span style="color:#64748b;">Age:</span> <strong>@Model.Age yrs</strong></div>
+    <div><span style="color:#64748b;">Gender:</span> <strong>@Model.Gender</strong></div>
+</div>
+
+<h4 style="font-size:14px; font-weight:700; color:#0f172a; margin-bottom:12px; border-bottom:2px solid #e2e8f0; padding-bottom:6px;">
+    <i class="fa-solid fa-flask" style="color:#10b981;"></i> Lab Test Results
+</h4>
+
+@if (Model.LabResults?.Count > 0)
+{
+    <table style="width:100%; font-size:13px; border-collapse:collapse;">
+        <thead>
+            <tr style="background:#f8fafc; color:#475569; border-bottom:2px solid #e2e8f0;">
+                <th style="padding:11px 12px;">Test Name</th>
+                <th style="padding:11px 12px;">Normal Range</th>
+                <th style="padding:11px 12px;">Result Value</th>
+                <th style="padding:11px 12px;">Observation</th>
+                <th style="padding:11px 12px;">Result Date</th>
+                <th style="padding:11px 12px;">Status</th>
+                <th style="padding:11px 12px;">Doctor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model.LabResults)
+            {
+                string rowBg = r.IsAbnormal ? "#fff1f2" : "";
+                <tr style="border-bottom:1px solid #f1f5f9; background:@rowBg;">
+                    <td style="padding:11px 12px; font-weight:600; color:#1e3a8a;">@r.TestName</td>
+                    <td style="padding:11px 12px; color:#64748b; font-size:12px;">@r.NormalRange</td>
+                    <td style="padding:11px 12px; font-weight:700; color:@(r.IsAbnormal ? "#dc2626" : "#16a34a"); font-size:14px;">
+                        @r.ResultValue
+                        @if (r.IsAbnormal)
+                        {
+                            <span style="font-size:10px; background:#fee2e2; color:#dc2626; padding:1px 6px; border-radius:8px; margin-left:4px;">ABNORMAL</span>
+                        }
+                    </td>
+                    <td style="padding:11px 12px; font-style:italic; color:#475569;">@r.Observation</td>
+                    <td style="padding:11px 12px; color:#64748b;">@r.ResultDate.ToString("dd-MM-yyyy HH:mm")</td>
+                    <td style="padding:11px 12px;">
+                        @{
+                            var (bg, fg) = r.Status == "Completed" ? ("#dcfce7", "#15803d") : ("#fef3c7", "#b45309");
+                        }
+                        <span style="padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; background:@bg; color:@fg;">@r.Status</span>
+                    </td>
+                    <td style="padding:11px 12px; color:#475569; font-size:12px;">Dr. @r.DoctorName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div style="text-align:center; padding:40px; color:#94a3b8;">
+        <i class="fa-solid fa-flask-vial fa-2x" style="opacity:0.4; margin-bottom:10px; display:block;"></i>
+        <p style="font-size:13px; font-style:italic;">No lab results available for this patient yet.</p>
+    </div>
+}

@@ -1,0 +1,88 @@
+﻿@model List<InfinityCoderzz_CMSV2026.Models.PendingLabRequestViewModel>
+@{
+    Layout = "_LabLayout";
+    ViewData["Title"] = "Pending Tests";
+    ViewData["ActiveMenu"] = "PendingTests";
+}
+
+<h2 style="color:#0f172a; font-size:22px; font-weight:700; margin-bottom:18px;">
+    <i class="fa-solid fa-vial-circle-check"></i> Pending Lab Test Requests
+</h2>
+
+@if (TempData["InfoMessage"] != null)
+{
+    <div style="background:#dbeafe; color:#1d4ed8; padding:12px 16px; border-radius:10px; margin-bottom:16px; font-size:13px; font-weight:600;">
+        <i class="fa-solid fa-circle-info"></i> @TempData["InfoMessage"]
+    </div>
+}
+
+<div style="background:white; padding:18px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:20px;">
+    <form asp-action="PendingTests" method="get" style="display:flex; gap:10px; align-items:center;">
+        <input type="text" name="searchMMR" class="form-control"
+               style="flex:1; padding:11px 14px; margin-top:0;"
+               placeholder="Search by Patient MMR Code..."
+               value="@ViewBag.SearchMMR" />
+        <button type="submit" class="btn-custom" style="padding:11px 24px;">
+            <i class="fa-solid fa-magnifying-glass"></i> Search
+        </button>
+        @if (!string.IsNullOrEmpty(ViewBag.SearchMMR as string))
+        {
+            <a asp-action="PendingTests" class="btn-custom" style="background:#64748b; padding:11px 18px;">
+                <i class="fa-solid fa-xmark"></i> Clear
+            </a>
+        }
+    </form>
+</div>
+
+<div style="background:white; border-radius:16px; border:1px solid #e2e8f0; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <thead>
+            <tr style="background:#f8fafc; color:#475569; border-bottom:2px solid #e2e8f0;">
+                <th style="padding:14px 16px;">MMR Code</th>
+                <th style="padding:14px 16px;">Patient Name</th>
+                <th style="padding:14px 16px;">Age/Gender</th>
+                <th style="padding:14px 16px;">Mobile</th>
+                <th style="padding:14px 16px;">Test Name</th>
+                <th style="padding:14px 16px;">Normal Range</th>
+                <th style="padding:14px 16px;">Requested By</th>
+                <th style="padding:14px 16px;">Request Date</th>
+                <th style="padding:14px 16px; text-align:center;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="9" style="padding:40px; text-align:center; color:#94a3b8; font-weight:500;">
+                        <i class="fa-solid fa-circle-check fa-2x" style="display:block; margin-bottom:10px; opacity:0.4;"></i>
+                        No pending lab test requests found.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var p in Model)
+                {
+                    <tr style="border-bottom:1px solid #f1f5f9;"
+                        onmouseover="this.style.background='#f8fafc'"
+                        onmouseout="this.style.background=''">
+                        <td style="padding:14px 16px; color:#2563eb; font-weight:600;">@p.MMRCode</td>
+                        <td style="padding:14px 16px; font-weight:600; color:#1e293b;">@p.PatientName</td>
+                        <td style="padding:14px 16px; color:#475569;">@p.Age yrs / @p.Gender</td>
+                        <td style="padding:14px 16px; color:#64748b;">@p.MobileNumber</td>
+                        <td style="padding:14px 16px; font-weight:600; color:#1e3a8a;">@p.TestName</td>
+                        <td style="padding:14px 16px; color:#64748b; font-size:12px;">@p.NormalRange</td>
+                        <td style="padding:14px 16px; color:#475569;">Dr. @p.DoctorName</td>
+                        <td style="padding:14px 16px; color:#64748b;">@p.RequestDate.ToString("dd-MM-yyyy HH:mm")</td>
+                        <td style="padding:14px 16px; text-align:center;">
+                            <a asp-action="EnterResult" asp-route-requestItemId="@p.RequestItemId"
+                               class="btn-custom" style="padding:7px 14px; font-size:13px; background:linear-gradient(135deg,#10b981,#059669);">
+                                <i class="fa-solid fa-flask-vial"></i> Enter Result
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

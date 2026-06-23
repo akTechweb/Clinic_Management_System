@@ -1,0 +1,206 @@
+@model InfinityCoderzz_CMSV2026.Models.pharmacist.CreateBillViewModel
+
+@{
+    Layout = "_PharmacyLayout";
+    ViewData["Title"] = "Create Bill";
+    ViewData["ActiveMenu"] = "Bills";
+}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a asp-action="List" class="btn-outline-cms btn-sm-cms">
+        <i class="fa-solid fa-arrow-left"></i> Back
+    </a>
+    <div>
+        <div class="page-title">Create Pharmacy Bill</div>
+        <div class="page-sub">Add medicines and generate bill for patient</div>
+    </div>
+</div>
+
+<div class="cms-card">
+    <div class="cms-card-header">
+        <span class="cms-card-title"><i class="fa-solid fa-receipt"></i> New Bill</span>
+    </div>
+    <div class="cms-card-body">
+        <form asp-action="Create" method="post" id="billForm">
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label-cms">Patient <span class="req">*</span></label>
+                    <select asp-for="PatientId" asp-items="ViewBag.Patients"
+                            class="form-control-cms patient-select">
+                        <option value="">Search Patient...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="border:1.5px solid #e2e8f0;border-radius:10px;padding:16px;background:#f8fafc;margin-bottom:20px;">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label-cms">Medicine</label>
+                        <select id="medicineSelect" class="form-control-cms medicine-select">
+                            <option value="">Search Medicine...</option>
+                            @foreach (var medicine in ViewBag.Medicines)
+                            {
+                                <option value="@medicine.MedicineId"
+                                        data-price="@medicine.UnitPrice"
+                                        data-name="@medicine.MedicineCode - @medicine.MedicineName">
+                                    @medicine.MedicineCode - @medicine.MedicineName
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label-cms">Quantity</label>
+                        <input type="number" id="quantityInput" class="form-control-cms" min="1" value="1" />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" id="addMedicineBtn" class="btn-primary-cms" style="width:100%;">
+                            <i class="fa-solid fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="billHiddenInputs"></div>
+            <input asp-for="TotalAmount" type="hidden" id="totalAmountInput" value="0" />
+
+            <div class="cms-card mb-3" style="border-color:#e2e8f0;">
+                <div class="cms-card-header">
+                    <span style="font-size:13px;font-weight:600;color:#374151;">Bill Items</span>
+                    <span id="itemCountBadge" class="badge-cms badge-gray">0 items</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="cms-table" id="billTable">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Medicine</th>
+                                <th>Qty</th>
+                                <th>Unit Price</th>
+                                <th>Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="billTableBody">
+                            <tr id="emptyRow">
+                                <td colspan="6" style="text-align:center;padding:24px;color:#94a3b8;">
+                                    No medicines added yet
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div style="font-size:18px;font-weight:700;color:#198754;">
+                    Total: <span id="totalAmountDisplay">₹0.00</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a asp-action="List" class="btn-outline-cms">Cancel</a>
+                    <button type="submit" class="btn-primary-cms" id="submitBillBtn" disabled>
+                        <i class="fa-solid fa-receipt"></i> Generate Bill
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+$(document).ready(function () {
+    $('.patient-select').select2({ placeholder: "Search Patient Name or Code", allowClear: true });
+    $('.medicine-select').select2({ placeholder: "Search Medicine Code or Name", allowClear: true });
+
+    let totalAmount = 0;
+    let itemIndex = 0;
+
+    $('#addMedicineBtn').click(function () {
+        const selectedOption = $('#medicineSelect option:selected');
+        const medicineId = $('#medicineSelect').val();
+        const medicineName = selectedOption.data('name') || selectedOption.text();
+        const quantity = parseInt($('#quantityInput').val());
+        const unitPrice = parseFloat(selectedOption.data('price'));
+
+        if (!medicineId || medicineId === '') {
+            alert('Please select a medicine.');
+            return;
+        }
+        if (isNaN(quantity) || quantity <= 0) {
+            alert('Please enter a valid quantity.');
+            return;
+        }
+        if (isNaN(unitPrice)) {
+            alert('Medicine price not found.');
+            return;
+        }
+
+        const amount = quantity * unitPrice;
+        const rowNum = itemIndex + 1;
+
+        $('#emptyRow').remove();
+
+        $('#billTableBody').append(`
+            <tr id="row_${itemIndex}" data-amount="${amount}">
+                <td style="color:#94a3b8;">${rowNum}</td>
+                <td style="font-weight:600;">${medicineName}</td>
+                <td>${quantity}</td>
+                <td>₹${unitPrice.toFixed(2)}</td>
+                <td style="font-weight:600;color:#198754;">₹${amount.toFixed(2)}</td>
+                <td>
+                    <button type="button" class="btn-danger-cms btn-sm-cms remove-row" data-index="${itemIndex}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `);
+
+        $('#billHiddenInputs').append(`
+            <input type="hidden" id="hi_mid_${itemIndex}"  name="BillItems[${itemIndex}].MedicineId"   value="${medicineId}" />
+            <input type="hidden" id="hi_mn_${itemIndex}"   name="BillItems[${itemIndex}].MedicineName"  value="${medicineName}" />
+            <input type="hidden" id="hi_qty_${itemIndex}"  name="BillItems[${itemIndex}].Quantity"      value="${quantity}" />
+            <input type="hidden" id="hi_up_${itemIndex}"   name="BillItems[${itemIndex}].UnitPrice"     value="${unitPrice}" />
+            <input type="hidden" id="hi_amt_${itemIndex}"  name="BillItems[${itemIndex}].Amount"        value="${amount}" />
+        `);
+
+        totalAmount += amount;
+        itemIndex++;
+
+        updateTotals();
+        $('#medicineSelect').val('').trigger('change');
+        $('#quantityInput').val(1);
+    });
+
+    $(document).on('click', '.remove-row', function () {
+        const idx = $(this).data('index');
+        const rowAmount = parseFloat($(`#row_${idx}`).data('amount'));
+        $(`#row_${idx}`).remove();
+        $(`#hi_mid_${idx}, #hi_mn_${idx}, #hi_qty_${idx}, #hi_up_${idx}, #hi_amt_${idx}`).remove();
+        totalAmount -= rowAmount;
+        if (totalAmount < 0) totalAmount = 0;
+        updateTotals();
+        if ($('#billTableBody tr').length === 0) {
+            $('#billTableBody').append(`
+                <tr id="emptyRow">
+                    <td colspan="6" style="text-align:center;padding:24px;color:#94a3b8;">No medicines added yet</td>
+                </tr>`);
+        }
+    });
+
+    function updateTotals() {
+        const count = itemIndex;
+        $('#totalAmountDisplay').text('₹' + totalAmount.toFixed(2));
+        $('#totalAmountInput').val(totalAmount.toFixed(2));
+        const addedRows = $('#billTableBody tr:not(#emptyRow)').length;
+        $('#itemCountBadge').text(addedRows + ' item' + (addedRows !== 1 ? 's' : ''));
+        if (addedRows > 0) {
+            $('#submitBillBtn').prop('disabled', false).addClass('btn-primary-cms');
+        } else {
+            $('#submitBillBtn').prop('disabled', true);
+        }
+    }
+});
+</script>
+}

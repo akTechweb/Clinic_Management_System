@@ -1,0 +1,186 @@
+﻿@model InfinityCoderzz_CMSV2026.Models.Appointment
+
+@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Appointment Details";
+    ViewData["ActiveNav"] = "Appointments";
+    ViewData["ShowTopbarInfo"] = true;
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="page-title">Appointment Details</h4>
+        <p class="page-sub">
+            <code style="font-size:13px">
+                @Model.AppointmentNumber
+            </code>
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="Index"
+           class="btn-outline-cms">
+            ← Back to List
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cms-alert cms-alert-success">
+        ✓ @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="cms-alert cms-alert-danger">
+        ⚠ @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <div class="cms-card">
+            <div class="cms-card-header">
+                <span class="cms-card-title">📅 Appointment Information</span>
+            </div>
+
+            <div class="cms-card-body">
+                <div class="row g-0">
+
+                    <div class="col-md-6">
+                        <div class="info-grid">
+
+                            <span class="info-key">Appt. No. <span class="colon"></span></span>
+                            <span class="info-val" style="font-family:monospace;font-size:12px">
+                                @Model.AppointmentNumber
+                            </span>
+
+                            <span class="info-key">Patient <span class="colon"></span></span>
+                            <span class="info-val">
+                                <strong>@Model.PatientName</strong>
+                                <small class="d-block" style="color:var(--muted)">
+                                    @Model.PatientCode
+                                </small>
+                            </span>
+
+                            <span class="info-key">Doctor <span class="colon"></span></span>
+                            <span class="info-val">
+                                Dr. @Model.DoctorName
+                            </span>
+
+                            <span class="info-key">Department <span class="colon"></span></span>
+                            <span class="info-val">
+                                <span class="badge-cms badge-blue">
+                                    @Model.DepartmentName
+                                </span>
+                            </span>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-grid">
+
+                            <span class="info-key">Date <span class="colon"></span></span>
+                            <span class="info-val">
+                                @Model.AppointmentDate.ToString("dd MMM yyyy")
+                            </span>
+
+                            <span class="info-key">Time <span class="colon"></span></span>
+                            <span class="info-val">
+                                @Model.AppointmentTime.ToString(@"hh\:mm")
+                            </span>
+
+                            <span class="info-key">Fee <span class="colon"></span></span>
+                            <span class="info-val" style="color:var(--green);font-weight:700">
+                                ₹@Model.ConsultationFee.ToString("N2")
+                            </span>
+
+                            <span class="info-key">Status <span class="colon"></span></span>
+                            <span class="info-val">
+                                @switch (Model.Status)
+                                {
+                                    case "Completed":
+                                        <span class="badge-cms badge-success">Completed</span>
+                                        break;
+
+                                    case "Cancelled":
+                                        <span class="badge-cms badge-danger">Cancelled</span>
+                                        break;
+
+                                    default:
+                                        <span class="badge-cms badge-warn">Scheduled</span>
+                                        break;
+                                }
+                            </span>
+
+                            <span class="info-key">Booked On <span class="colon"></span></span>
+                            <span class="info-val">
+                                @(Model.CreatedAt.HasValue
+                                                                ? Model.CreatedAt.Value.ToString("dd MMM yyyy")
+                                                                : "—")
+                            </span>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="cms-card">
+            <div class="cms-card-header">
+                <span class="cms-card-title">⚡ Actions</span>
+            </div>
+
+            <div class="cms-card-body d-flex flex-column gap-2">
+
+                @if (Model.Status == "Scheduled")
+                {
+                    <a asp-controller="Bills"
+                       asp-action="Create"
+                       asp-route-appointmentId="@Model.AppointmentId"
+                       class="btn-success-cms"
+                       style="justify-content:center">
+                        🧾 Generate Bill
+                    </a>
+
+                    <form asp-action="Cancel"
+                          asp-route-id="@Model.AppointmentId"
+                          method="post"
+                          onsubmit="return confirm('Cancel this appointment?')">
+
+                        <button type="submit"
+                                class="btn-danger-cms w-100"
+                                style="justify-content:center">
+                            ✖ Cancel Appointment
+                        </button>
+
+                    </form>
+                }
+
+                <a asp-controller="Patients"
+                   asp-action="Details"
+                   asp-route-id="@Model.PatientId"
+                   class="btn-outline-cms"
+                   style="justify-content:center">
+                    👤 View Patient
+                </a>
+
+                <a asp-controller="Appointments"
+                   asp-action="Create"
+                   asp-route-patientId="@Model.PatientId"
+                   class="btn-outline-cms"
+                   style="justify-content:center">
+                    📅 New Appointment
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>

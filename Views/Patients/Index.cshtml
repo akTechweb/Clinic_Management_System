@@ -1,0 +1,113 @@
+﻿@model IEnumerable<InfinityCoderzz_CMSV2026.Models.Patient>
+@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Patient Records";
+    ViewData["ActiveNav"] = "Records";
+    ViewData["ShowTopbarInfo"] = true;
+    var list = Model?.ToList() ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="page-title">Patient Records</h4>
+        <p class="page-sub">All registered patients in the system</p>
+    </div>
+    <a asp-action="Create" class="btn-primary-cms">＋ Register New Patient</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cms-alert cms-alert-success">✓ @TempData["SuccessMessage"]</div>
+}
+
+<!-- Search bar -->
+<form asp-action="Search" method="get" class="mb-3">
+    <div class="d-flex gap-2" style="max-width:440px">
+        <input type="text" name="searchText" class="form-control-cms"
+               placeholder="Search by name, MMR No, or mobile…" />
+        <button type="submit" class="btn-primary-cms" style="white-space:nowrap">🔍 Search</button>
+    </div>
+</form>
+
+<div class="cms-card">
+    <div style="overflow-x:auto">
+        <table class="cms-table">
+            <thead>
+                <tr>
+                    <th>MMR No</th>
+                    <th>Full Name</th>
+                    <th>Age / Gender</th>
+                    <th>Mobile</th>
+                    <th>Blood Group</th>
+                    <th>Registered On</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (list.Any())
+                {
+                    foreach (var p in list)
+                    {
+                        <tr>
+                            <td>
+                                <a class="mmr-link" asp-action="Details" asp-route-id="@p.PatientId">
+                                    @p.PatientCode
+                                </a>
+                            </td>
+                            <td><strong>@p.FullName</strong></td>
+                            <td>@(p.Age.HasValue? p.Age + " yrs" : "—") / @(p.Gender ?? "—")</td>
+                            <td>@(p.MobileNumber ?? "—")</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(p.BloodGroup))
+                                {
+                                    <span class="badge-cms badge-danger">@p.BloodGroup</span>
+                                }
+                                else
+                                {
+
+                                    <span>—</span>
+                                }
+                            </td>
+                            <td>@(p.RegistrationDate.HasValue? p.RegistrationDate.Value.ToString("dd MMM yyyy") : "—")</td>
+                            <td>
+                                @if (p.IsActive)
+                                {
+                                    <span class="badge-cms badge-success">Active</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge-cms badge-gray">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a asp-action="Details" asp-route-id="@p.PatientId"
+                                       class="btn-outline-cms btn-sm-cms">View</a>
+                                    <a asp-action="Edit" asp-route-id="@p.PatientId"
+                                       class="btn-outline-cms btn-sm-cms">Edit</a>
+                                    <a asp-controller="Appointments" asp-action="Create"
+                                       asp-route-patientId="@p.PatientId"
+                                       class="btn-success-cms btn-sm-cms">Appt.</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <div class="ei">👤</div>
+                                <p>No patients found. <a asp-action="Create" style="color:var(--blue)">Register the first patient</a></p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

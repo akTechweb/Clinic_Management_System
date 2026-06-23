@@ -1,0 +1,77 @@
+@model IEnumerable<InfinityCoderzz_CMSV2026.Models.pharmacist.AuditLog>
+
+@{
+    Layout = "_PharmacyLayout";
+    ViewData["Title"] = "Audit Logs";
+    ViewData["ActiveMenu"] = "AuditLogs";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <div class="page-title">Audit Logs</div>
+        <div class="page-sub">Record of pharmacy actions — billing, dispensing and cancellations</div>
+    </div>
+</div>
+
+<div class="cms-card mb-3">
+    <div class="p-3">
+        <form asp-action="List" method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label-cms">From Date</label>
+                <input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control-cms" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label-cms">To Date</label>
+                <input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control-cms" />
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn-primary-cms"><i class="fa-solid fa-filter"></i> Filter</button>
+                <a asp-action="List" class="btn-outline-cms"><i class="fa-solid fa-xmark"></i> Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="cms-card">
+    <div class="cms-card-header">
+        <span class="cms-card-title"><i class="fa-solid fa-clipboard-list"></i> Activity Log</span>
+        <span class="badge bg-secondary">@Model.Count() entr@(Model.Count() == 1 ? "y" : "ies")</span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="cms-table js-datatable">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>Date &amp; Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td class="text-muted">@log.LogId</td>
+                            <td style="font-weight:600;">@(log.Username ?? $"User #{log.UserId}")</td>
+                            <td><span class="badge-cms badge-blue">@log.Action</span></td>
+                            <td style="color:#475569;">@log.Remarks</td>
+                            <td>@log.LogDate.ToString("dd MMM yyyy hh:mm tt")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-inbox fa-2x mb-2 d-block"></i>
+                            No audit entries found for the selected period.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

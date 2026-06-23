@@ -1,0 +1,259 @@
+﻿@model InfinityCoderzz_CMSV2026.Models.Bill
+
+@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Bill Details";
+    ViewData["ActiveNav"] = "Billing";
+    ViewData["ShowTopbarInfo"] = true;
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="page-title">Bill Details</h4>
+        <p class="page-sub">
+            Bill
+            <span style="color:var(--blue);font-weight:600">#@Model.BillId</span>
+            —
+            @Model.PatientName
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <button onclick="window.print()" class="btn-outline-cms">
+            🖨 Print Bill
+        </button>
+
+        <a asp-action="Index"
+           class="btn-outline-cms">
+            ← Back
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cms-alert cms-alert-success">
+        ✓ @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="row g-3">
+
+    <div class="col-md-4">
+        <div class="cms-card h-100">
+            <div class="cms-card-header">
+                <span class="cms-card-title">🧾 Bill Summary</span>
+            </div>
+
+            <div class="cms-card-body">
+                <div class="info-grid">
+
+                    <span class="info-key">Bill ID <span class="colon"></span></span>
+                    <span class="info-val" style="color:var(--blue);font-weight:700">
+                        #@Model.BillId
+                    </span>
+
+                    <span class="info-key">Patient <span class="colon"></span></span>
+                    <span class="info-val">
+                        <strong>@Model.PatientName</strong>
+                        <small class="d-block" style="color:var(--muted)">
+                            @Model.PatientCode
+                        </small>
+                    </span>
+
+                    <span class="info-key">Doctor <span class="colon"></span></span>
+                    <span class="info-val">
+                        @(Model.DoctorName != null ? "Dr. " + Model.DoctorName : "—")
+                    </span>
+
+                    <span class="info-key">Appt. No. <span class="colon"></span></span>
+                    <span class="info-val" style="font-family:monospace;font-size:12px">
+                        @(Model.AppointmentNumber ?? "—")
+                    </span>
+
+                    <span class="info-key">Bill Date <span class="colon"></span></span>
+                    <span class="info-val">
+                        @(Model.BillDate.HasValue
+                                                ? Model.BillDate.Value.ToString("dd MMM yyyy")
+                                                : "—")
+                    </span>
+
+                    <span class="info-key">Total <span class="colon"></span></span>
+                    <span class="info-val" style="color:var(--green);font-size:20px;font-weight:700">
+                        ₹@Model.TotalAmount.ToString("N2")
+                    </span>
+
+                    <span class="info-key">Status <span class="colon"></span></span>
+                    <span class="info-val">
+                        @switch (Model.Status)
+                        {
+                            case "Paid":
+                                <span class="badge-cms badge-success">✓ Paid</span>
+                                break;
+
+                            case "Pending":
+                                <span class="badge-cms badge-warn">⏳ Pending</span>
+                                break;
+
+                            default:
+                                <span class="badge-cms badge-gray">@Model.Status</span>
+                                break;
+                        }
+                    </span>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+
+        <div class="cms-card mb-3">
+            <div class="cms-card-header">
+                <span class="cms-card-title">📋 Bill Items</span>
+            </div>
+
+            <div style="overflow-x:auto">
+                <table class="cms-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th style="text-align:right">Amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Items != null && Model.Items.Any())
+                        {
+                            int n = 1;
+
+                            foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>@n</td>
+
+                                    <td>
+                                        @if (item.ItemType == "Consultation")
+                                        {
+                                            <span class="badge-cms badge-blue">Consultation</span>
+                                        }
+                                        else if (item.ItemType == "Registration")
+                                        {
+                                            <span class="badge-cms badge-success">Registration</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-cms badge-gray">@item.ItemType</span>
+                                        }
+                                    </td>
+
+                                    <td>@(item.Description ?? "—")</td>
+
+                                    <td>@(item.Quantity?.ToString() ?? "1")</td>
+
+                                    <td>₹@item.UnitPrice.ToString("N2")</td>
+
+                                    <td style="text-align:right;font-weight:600">
+                                        ₹@item.Amount.ToString("N2")
+                                    </td>
+                                </tr>
+
+                                n++;
+                            }
+
+                            <tr style="background:#f8fafc;font-weight:700">
+                                <td colspan="5" style="text-align:right">Total</td>
+                                <td style="text-align:right;color:var(--green)">
+                                    ₹@Model.TotalAmount.ToString("N2")
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state" style="padding:20px 0">
+                                        <p>No bill items.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+        <div class="cms-card">
+            <div class="cms-card-header">
+                <span class="cms-card-title">💳 Payment History</span>
+            </div>
+
+            <div style="overflow-x:auto">
+                <table class="cms-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Method</th>
+                            <th>Reference</th>
+                            <th style="text-align:right">Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Payments != null && Model.Payments.Any())
+                        {
+                            foreach (var pay in Model.Payments)
+                            {
+                                <tr>
+                                    <td>
+                                        @(pay.PaymentDate.HasValue
+                                                                        ? pay.PaymentDate.Value.ToString("dd MMM yyyy")
+                                                                        : "—")
+                            </td>
+
+                                    <td>
+                                        <span class="badge-cms badge-blue">
+                                            @pay.PaymentMethod
+                                        </span>
+                                    </td>
+
+                                    <td>@(pay.TransactionReference ?? "—")</td>
+
+                                    <td style="text-align:right">
+                                        ₹@pay.Amount.ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        <span class="badge-cms badge-success">
+                                            @pay.PaymentStatus
+                                        </span>
+                                    </td>
+                                </tr>
+                                                }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state" style="padding:20px 0">
+                                        <p>No payments recorded yet.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>

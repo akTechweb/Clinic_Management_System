@@ -1,0 +1,91 @@
+@model InfinityCoderzz_CMSV2026.Models.PatientFullReportViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Lab Report — @Model.PatientName</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 40px; background: white; color: #334155; }
+        h1 { font-size: 22px; color: #0f172a; margin: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th { background: #f8fafc; padding: 10px 12px; text-align: left; color: #475569; border: 1px solid #e2e8f0; }
+        td { padding: 10px 12px; border: 1px solid #e2e8f0; }
+        .abnormal { color: #dc2626; font-weight: 700; }
+        .badge-ab { background: #fee2e2; color: #dc2626; padding: 2px 6px; border-radius: 6px; font-size: 11px; }
+        .badge-ok { background: #dcfce7; color: #15803d; padding: 2px 6px; border-radius: 6px; font-size: 11px; }
+        @@media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div style="display:flex; justify-content:space-between; border-bottom:3px solid #3b82f6; padding-bottom:16px; margin-bottom:20px;">
+        <div>
+            <h1>INFINITY CLINIC MANAGEMENT SYSTEM</h1>
+            <p style="color:#64748b; font-size:12px; margin:4px 0 0;">Lab Report — Printed @DateTime.Now.ToString("dd-MM-yyyy HH:mm")</p>
+        </div>
+        <button class="no-print" onclick="window.print()" style="background:#3b82f6; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">
+            🖨 Print / Save PDF
+        </button>
+    </div>
+
+    <div style="background:#f8fafc; padding:14px 18px; border-radius:8px; display:grid; grid-template-columns:repeat(4,1fr); gap:10px; font-size:13px; border:1px solid #e2e8f0; margin-bottom:20px;">
+        <div><span style="color:#64748b;">MMR Code:</span><br/><strong style="color:#2563eb;">@Model.MMRCode</strong></div>
+        <div><span style="color:#64748b;">Patient Name:</span><br/><strong>@Model.PatientName</strong></div>
+        <div><span style="color:#64748b;">Age:</span><br/><strong>@Model.Age Years</strong></div>
+        <div><span style="color:#64748b;">Gender:</span><br/><strong>@Model.Gender</strong></div>
+    </div>
+
+    <h3 style="font-size:14px; font-weight:700; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">Lab Test Results</h3>
+
+    @if (Model.LabResults?.Count > 0)
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Test Name</th>
+                    <th>Normal Range</th>
+                    <th>Result Value</th>
+                    <th>Observation</th>
+                    <th>Result Date</th>
+                    <th>Status</th>
+                    <th>Consulting Doctor</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.LabResults)
+                {
+                    <tr style="background:@(r.IsAbnormal ? "#fff1f2" : "")">
+                        <td style="font-weight:600;">@r.TestName</td>
+                        <td style="color:#64748b;">@r.NormalRange</td>
+                        <td class="@(r.IsAbnormal ? "abnormal" : "")">
+                            @r.ResultValue
+                            @if (r.IsAbnormal) { <span class="badge-ab">ABNORMAL</span> }
+                        </td>
+                        <td style="font-style:italic;">@r.Observation</td>
+                        <td>@r.ResultDate.ToString("dd-MM-yyyy")</td>
+                        <td>
+                            @if (r.Status == "Completed")
+                            { <span class="badge-ok">Completed</span> }
+                            else
+                            { <span style="background:#fef3c7;color:#b45309;padding:2px 6px;border-radius:6px;font-size:11px;">@r.Status</span> }
+                        </td>
+                        <td>Dr. @r.DoctorName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p style="color:#94a3b8; font-style:italic; text-align:center; padding:30px;">No lab results available for this patient.</p>
+    }
+
+    <div style="margin-top:60px; display:flex; justify-content:flex-end;">
+        <div style="text-align:center; width:200px; border-top:1px solid #475569; padding-top:8px; font-size:12px; font-weight:600; color:#1e293b;">
+            Authorised Doctor Signature
+        </div>
+    </div>
+</body>
+</html>

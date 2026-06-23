@@ -1,0 +1,125 @@
+@model IEnumerable<InfinityCoderzz_CMSV2026.Models.pharmacist.Prescription>
+
+@{
+    Layout = "_PharmacyLayout";
+    ViewData["Title"] = "Dispense Medicine";
+    ViewData["ActiveMenu"] = "Dispensing";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <div class="page-title">Dispense Medicine</div>
+        <div class="page-sub">Select a prescription to dispense — stock is deducted using FEFO (first-expiry-first-out) and a paid bill is generated automatically</div>
+    </div>
+    <a asp-controller="MedicineDispensing" asp-action="History" class="btn-outline-cms">
+        <i class="fa-solid fa-clock-rotate-left"></i> Dispensing History
+    </a>
+</div>
+
+<div class="cms-card">
+    <div class="cms-card-header">
+        <span class="cms-card-title"><i class="fa-solid fa-file-prescription"></i> Prescriptions Awaiting Dispensing</span>
+        <span style="font-size:12px;color:#64748b;">@Model.Count() prescription(s)</span>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="cms-table" id="dispenseTable">
+            <thead>
+                <tr>
+                    <th>Rx No.</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var rx in Model)
+                    {
+                        var sc = rx.Status?.ToLower() switch
+                        {
+                            "pending" => "badge-warn",
+                            "partially dispensed" => "badge-orange",
+                            _ => "badge-gray"
+                        };
+                        <tr>
+                            <td><strong>@RefNo.Rx(rx.PrescriptionId)</strong></td>
+                            <td style="font-weight:600;">@rx.PatientName</td>
+                            <td>@rx.DoctorName</td>
+                            <td>@rx.PrescriptionDate.ToString("dd MMM yyyy")</td>
+                            <td><span class="badge-cms @sc">@(string.IsNullOrEmpty(rx.Status) ? "Pending" : rx.Status)</span></td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2">
+                                    <a asp-controller="Prescription" asp-action="Details" asp-route-id="@rx.PrescriptionId"
+                                       class="btn-outline-cms btn-sm-cms">
+                                        <i class="fa-solid fa-eye"></i> View
+                                    </a>
+                                    <button type="button" class="btn-primary-cms btn-sm-cms"
+                                            data-bs-toggle="modal" data-bs-target="#dispenseModal"
+                                            data-rxid="@rx.PrescriptionId" data-patient="@rx.PatientName">
+                                        <i class="fa-solid fa-hand-holding-medical"></i> Dispense &amp; Bill
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:40px;color:#94a3b8;">
+                            <i class="fa-solid fa-circle-check" style="font-size:34px;display:block;margin-bottom:12px;color:#198754;"></i>
+                            No prescriptions awaiting dispensing
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Dispense confirmation modal -->
+<div class="modal fade" id="dispenseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:12px;">
+            <form asp-action="DispenseAndBill" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="prescriptionId" id="modalRxId" />
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa-solid fa-hand-holding-medical text-success me-2"></i>Confirm Dispense &amp; Bill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">You are dispensing all medicines for prescription
+                        <strong id="modalRxLabel"></strong>. Stock will be deducted once (FEFO) and a paid
+                        bill will be generated automatically and linked to this prescription.</p>
+                    <label class="form-label-cms">Remarks (optional)</label>
+                    <textarea name="remarks" rows="2" class="form-control-cms" placeholder="Any notes..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline-cms" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-primary-cms">
+                        <i class="fa-solid fa-check"></i> Confirm — Dispense &amp; Bill
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var dispenseModal = document.getElementById('dispenseModal');
+    if (dispenseModal) {
+        dispenseModal.addEventListener('show.bs.modal', function (event) {
+            var btn = event.relatedTarget;
+            var rxId = btn.getAttribute('data-rxid');
+            var patient = btn.getAttribute('data-patient');
+            document.getElementById('modalRxId').value = rxId;
+            document.getElementById('modalRxLabel').textContent = '#' + rxId + ' (' + patient + ')';
+        });
+    }
+</script>
+}

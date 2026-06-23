@@ -1,0 +1,224 @@
+﻿@model IEnumerable<InfinityCoderzz_CMSV2026.Models.Appointment>
+
+@{
+    Layout = "~/Views/Shared/_ReceptionistLayout.cshtml";
+
+    ViewData["Title"] = "Appointments";
+    ViewData["ActiveNav"] = "Appointments";
+    ViewData["ShowTopbarInfo"] = true;
+
+    var list = Model?.ToList() ?? new List<InfinityCoderzz_CMSV2026.Models.Appointment>();
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h4 class="page-title">Appointments</h4>
+        <p class="page-sub">View and manage patient appointments.</p>
+    </div>
+
+    <a asp-action="Create" class="btn-primary-cms">
+        ＋ New Appointment
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cms-alert cms-alert-success">
+        ✓ @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="cms-alert cms-alert-danger">
+        ⚠ @TempData["ErrorMessage"]
+    </div>
+}
+
+<form asp-action="Index" method="get" class="cms-card mb-4">
+    <div class="cms-card-header">
+        <span class="cms-card-title">🔍 Appointment Filters</span>
+    </div>
+
+    <div class="cms-card-body">
+        <div class="row g-3 align-items-end">
+
+            <div class="col-md-2">
+                <label class="form-label-cms">Department</label>
+                <select name="departmentId" class="form-control-cms" asp-items="ViewBag.Departments">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label-cms">Doctor</label>
+                <select name="doctorId" class="form-control-cms" asp-items="ViewBag.Doctors">
+                    <option value="">All Doctors</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label-cms">MMR No</label>
+                <input type="text"
+                       name="patientCode"
+                       class="form-control-cms"
+                       value="@ViewBag.PatientCode"
+                       placeholder="MMR000001" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label-cms">From Date</label>
+                <input type="date"
+                       name="fromDate"
+                       class="form-control-cms"
+                       value="@ViewBag.FromDate" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label-cms">To Date</label>
+                <input type="date"
+                       name="toDate"
+                       class="form-control-cms"
+                       value="@ViewBag.ToDate" />
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit"
+                        class="btn-primary-cms"
+                        style="flex:1;justify-content:center">
+                    Filter
+                </button>
+
+                <a asp-action="Index"
+                   class="btn-outline-cms"
+                   style="flex:1;justify-content:center">
+                    Clear
+                </a>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<div class="cms-card">
+    <div style="overflow-x:auto">
+        <table class="cms-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Appointment No</th>
+                    <th>MMR No</th>
+                    <th>Patient</th>
+                    <th>Department</th>
+                    <th>Doctor</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th>Fee</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (list.Any())
+                {
+                    int i = 1;
+
+                    foreach (var a in list)
+                    {
+                        <tr>
+                            <td>@i</td>
+
+                            <td style="font-family:monospace;font-size:12px">
+                                @(a.AppointmentNumber ?? "—")
+                            </td>
+
+                            <td>
+                                <span style="color:var(--blue);font-weight:600">
+                                    @a.PatientCode
+                                </span>
+                            </td>
+
+                            <td>
+                                <strong>@a.PatientName</strong>
+                            </td>
+
+                            <td>
+                                <span class="badge-cms badge-blue">
+                                    @a.DepartmentName
+                                </span>
+                            </td>
+
+                            <td>
+                                Dr. @a.DoctorName
+                            </td>
+
+                            <td>
+                                @a.AppointmentDate.ToString("dd MMM yyyy")
+                                <small class="d-block" style="color:var(--muted)">
+                                    @a.AppointmentTime.ToString(@"hh\:mm")
+                                </small>
+                            </td>
+
+                            <td>
+                                @switch (a.Status)
+                                {
+                                    case "Completed":
+                                        <span class="badge-cms badge-success">Completed</span>
+                                        break;
+
+                                    case "Cancelled":
+                                        <span class="badge-cms badge-danger">Cancelled</span>
+                                        break;
+
+                                    default:
+                                        <span class="badge-cms badge-warn">Scheduled</span>
+                                        break;
+                                }
+                            </td>
+
+                            <td>
+                                ₹@a.ConsultationFee.ToString("N0")
+                            </td>
+
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a asp-action="Details"
+                                       asp-route-id="@a.AppointmentId"
+                                       class="btn-outline-cms btn-sm-cms">
+                                        View
+                                    </a>
+
+                                    @if (a.Status == "Scheduled")
+                                    {
+                                        <form asp-action="Cancel"
+                                              asp-route-id="@a.AppointmentId"
+                                              method="post"
+                                              onsubmit="return confirm('Cancel this appointment?')">
+                                            <button type="submit"
+                                                    class="btn-danger-cms btn-sm-cms">
+                                                Cancel
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+
+                        i++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <div class="ei">📅</div>
+                                <p>No appointments found.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
